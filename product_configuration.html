@@ -21,6 +21,8 @@
 		<script src="libs/stats.min.js"></script>
     <script src="libs/dat.gui.min.js"></script>
     <script src="libs/OrbitControls.js"></script>
+    <script src="libs/OBJLoader.js"></script>
+    <script src="libs/GLTFLoader.js"></script>
 	</head>
 	<body>
 
@@ -46,7 +48,7 @@
 
 		<script>
 			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
 
 			var renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -66,22 +68,56 @@
 				blue: 0.0
 			};
 
+      var product = {
+        product: "Sphere"
+			};
+
 			var uniforms = {
             materialColor: {type: "v3", value: new THREE.Vector3() },
 					};
 
+      var box = new THREE.Box3(
+        new THREE.Vector3(-50,-50,-50),
+        new THREE.Vector3(50,50,50)
+      );
 
+      var sizeB = box.getSize();
 
 			var sphereMaterial = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: vs, fragmentShader: fs });
 
 			sphere = new THREE.Mesh(
 				new THREE.SphereGeometry( 10, 32, 16 ),
 				sphereMaterial );
+      sphere.geometry.computeBoundingBox();
 
-			scene.add( sphere );
+      var sizeO = sphere.geometry.boundingBox.getSize();
+      var ratio = sizeB.divide( sizeO );
 
+      sphere.matrixAutoUpdate=false;
+      sphere.matrix.makeScale(ratio.x,ratio.y, ratio.z);
+
+
+
+      var container = new THREE.Object3D();
+      container.add(sphere);
+      scene.add(container);
       var gui;
   		var stats = new Stats();
+
+
+			var loader = new THREE.CubeTextureLoader();
+				loader.setPath( 'textures/Yokohama3/' );
+
+			var textureCube = loader.load( [
+					'posx.jpg', 'negx.jpg',
+					'posy.jpg', 'negy.jpg',
+					'posz.jpg', 'negz.jpg'
+				] );
+
+      textureCube.onload = function(){render()};
+			scene.background = textureCube;
+			textureCube.minFilter = THREE.LinearMipMapLinearFilter;
+
 
   		function init() {
 
@@ -89,7 +125,7 @@
   			//renderer.gammaOutput = true;
   			renderer.setClearColor( 0xf0f0f0 );
 
-  			camera.position.set( 0, 50, 50 );
+  			camera.position.set( 0, 150, 150 );
         camera.lookAt( new THREE.Vector3(0,0,0));
   			scene.add( camera );
 
@@ -99,7 +135,7 @@
 
   			controls.addEventListener( 'change', render );
   			controls.minDistance = 1;
-  			controls.maxDistance = 100;
+  			controls.maxDistance = 10000;
   			//controls.maxPolarAngle = Math.PI / 2;
   			controls.enablePan = false;
   			controls.target.copy(new THREE.Vector3(0,0,0));
@@ -141,9 +177,31 @@
   		}
 
   		function buildGui() {
-
   			clearGui();
+        var products_list = ["IronMan", "IronMan-Helmet-1", "IronMan-Helmet-2", "Hulk-Buster-IronMan", "IronMan-Mark42", "Arc-Reactor", "Sphere"]
+        gui.add(product, "product", products_list).onChange( function(newVal) {
+          while(container.children.length>0){
+            container.remove(container.children[0])
+          }
+          if(newVal=="Sphere"){
+            container.add(sphere);
+            camera.lookAt( sphere );
+            render();
+          } else if(newVal=="IronMan"){
+            model_loader("models/IronMan/IronMan.obj");
+          } else if(newVal=="IronMan-Helmet-1"){
+            model_loader("models/ironman_helmet/obj/helmet.obj");
+          } else if(newVal=="IronMan-Helmet-2"){
+            model_loader("models/30-iron-man-helmet-obj/iron_man_helmet.obj");
+          } else if(newVal=="Hulk-Buster-IronMan"){
+            model_loader("models/hulk_buster_iron_man/scene.gltf");
+          } else if(newVal=="IronMan-Mark42"){
+            model_loader("models/iron-man-mark-42/source/Iron_Man_Mark_42/Mark_42.obj");
+          } else if(newVal=="Arc-Reactor"){
+            model_loader("models/Arc_Reactor/Arc_Reactor.obj");
+          }
 
+        });
         materialColor = gui.addFolder('Material Color');
         materialColor.add(materialColorParams,'red').min(0).max(1).onChange( function(newVal) { render() });
         materialColor.add(materialColorParams,'green').min(0).max(1).onChange( function(newVal) { render() });
@@ -157,10 +215,43 @@
 
   		}
 
-  		init();
+
+      function model_loader(url){
+        if(url.substring(url.length - 3, url.length)=="obj"){
+          var loader = new THREE.OBJLoader();
+          var gltf = false;
+        } else if(url.substring(url.length - 3, url.length)=="ltf"){
+          var loader = new THREE.GLTFLoader();
+          var gltf = true;
+        }
+        loader.load(url, function(object){
+          if(gltf){object=object.scene;}
+
+          var sizeO = new THREE.Box3().setFromObject(object).getSize();
+          var box = new THREE.Box3(
+            new THREE.Vector3(-50,-50,-50),
+            new THREE.Vector3(50,50,50)
+          );
+          var sizeB = box.getSize();
+          var ratio = sizeB.divide( sizeO );
+
+          object.matrixAutoUpdate=false;
+          var min = ratio.x;
+          if(ratio.y<min) {min=ratio.y;}
+          if(ratio.z<min) {min=ratio.z;}
+          object.matrix.makeScale(min, min, min);
+          container.add(object);
+          render();
+        });
+
+      };
+
+
+      init();
   		buildGui();
   		update();
 			render();
+      setInterval(function(){ render(); }, 2000);
 		</script>
 	</body>
 </html>
