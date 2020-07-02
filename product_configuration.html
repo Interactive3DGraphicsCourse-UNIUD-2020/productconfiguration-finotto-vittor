@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Product Configuration Finotto - Vittor</title>
+		<style>
+
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+
+	</style>
+		<script src="libs/three.js"></script>
+		<script src="libs/stats.min.js"></script>
+    <script src="libs/dat.gui.min.js"></script>
+    <script src="libs/OrbitControls.js"></script>
+	</head>
+	<body>
+
+		<script type="text/x-glsl" id="vertex">
+			uniform vec3 materialColor;
+			varying vec3 vColor;
+
+			void main() {
+		    	// transforms the vertex from object space to clip space coords
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+				vColor = materialColor;
+			}
+		</script>
+
+		<script type="text/x-glsl" id="fragment">
+			varying vec3 vColor;
+
+			void main() {
+				gl_FragColor = vec4(vColor, 1.0);
+			}
+		</script>
+
+
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			var renderer = new THREE.WebGLRenderer({ antialias: true });
+
+      controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+			// scene code here
+
+
+			var vs = document.getElementById("vertex").textContent;
+			var fs = document.getElementById("fragment").textContent;
+
+
+      // default: red plastic
+			var materialColorParams = {
+        red: 1.0,
+				green: 0.0,
+				blue: 0.0
+			};
+
+			var uniforms = {
+            materialColor: {type: "v3", value: new THREE.Vector3() },
+					};
+
+
+
+			var sphereMaterial = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: vs, fragmentShader: fs });
+
+			sphere = new THREE.Mesh(
+				new THREE.SphereGeometry( 10, 32, 16 ),
+				sphereMaterial );
+
+			scene.add( sphere );
+
+      var gui;
+  		var stats = new Stats();
+
+  		function init() {
+
+  			//renderer.gammaInput = true;
+  			//renderer.gammaOutput = true;
+  			renderer.setClearColor( 0xf0f0f0 );
+
+  			camera.position.set( 0, 50, 50 );
+        camera.lookAt( new THREE.Vector3(0,0,0));
+  			scene.add( camera );
+
+  			document.body.appendChild( renderer.domElement );
+  			renderer.setPixelRatio( window.devicePixelRatio );
+  			renderer.setSize( window.innerWidth, window.innerHeight );
+
+  			controls.addEventListener( 'change', render );
+  			controls.minDistance = 1;
+  			controls.maxDistance = 100;
+  			//controls.maxPolarAngle = Math.PI / 2;
+  			controls.enablePan = false;
+  			controls.target.copy(new THREE.Vector3(0,0,0));
+  			controls.update();
+
+  			window.addEventListener( 'resize', onResize, false );
+
+        stats.domElement.style.position = 'absolute';
+  			stats.domElement.style.top = '0px';
+  			document.body.appendChild( stats.domElement );
+
+  		}
+
+  		function onResize() {
+
+  			renderer.setSize( window.innerWidth, window.innerHeight );
+  			camera.aspect = ( window.innerWidth / window.innerHeight );
+  			camera.updateProjectionMatrix();
+
+  		}
+
+  		function update() {
+  			requestAnimationFrame( update );
+  			stats.update();
+  		}
+
+  		function render() {
+  			updateUniforms();
+  			renderer.render( scene, camera );
+
+  		}
+
+  		function clearGui() {
+
+  			if ( gui ) gui.destroy();
+  			gui = new dat.GUI();
+  			gui.open();
+
+  		}
+
+  		function buildGui() {
+
+  			clearGui();
+
+        materialColor = gui.addFolder('Material Color');
+        materialColor.add(materialColorParams,'red').min(0).max(1).onChange( function(newVal) { render() });
+        materialColor.add(materialColorParams,'green').min(0).max(1).onChange( function(newVal) { render() });
+        materialColor.add(materialColorParams,'blue').min(0).max(1).onChange( function(newVal) { render() });
+  		}
+
+  		function updateUniforms() {
+
+          uniforms.materialColor.value = new THREE.Vector3(materialColorParams.red,
+  								materialColorParams.green,materialColorParams.blue);
+
+  		}
+
+  		init();
+  		buildGui();
+  		update();
+			render();
+		</script>
+	</body>
+</html>
