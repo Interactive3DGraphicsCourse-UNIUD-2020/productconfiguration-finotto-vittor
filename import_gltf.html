@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Test gltf loaderFinotto - Vittor</title>
+		<style>
+
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+
+	</style>
+		<script src="libs/three.js"></script>
+		<script src="libs/stats.min.js"></script>
+    <script src="libs/dat.gui.min.js"></script>
+    <script src="libs/OrbitControls.js"></script>
+    <script src="libs/OBJLoader.js"></script>
+    <script src="libs/GLTFLoader.js"></script>
+		<script src="libs/DRACOLoader.js"></script>
+	</head>
+	<body>
+
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
+
+			var renderer = new THREE.WebGLRenderer({ antialias: true, physicallyCorrectLights : true });
+
+      controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+
+			var spotLight = new THREE.SpotLight( 0xffffff );
+			spotLight.position.set( 10, 100, 10 );
+
+			spotLight.castShadow = true;
+
+			spotLight.shadow.mapSize.width = 1024;
+			spotLight.shadow.mapSize.height = 1024;
+
+			spotLight.shadow.camera.near = 500;
+			spotLight.shadow.camera.far = 4000;
+			spotLight.shadow.camera.fov = 30;
+
+			scene.add( spotLight );
+
+			var spotLightHelper = new THREE.SpotLightHelper( spotLight );
+			scene.add( spotLightHelper );
+
+
+
+      var box = new THREE.Box3(
+        new THREE.Vector3(-50,-50,-50),
+        new THREE.Vector3(50,50,50)
+      );
+
+      var sizeB = box.getSize();
+
+      var gui;
+  		var stats = new Stats();
+
+
+			var loader = new THREE.CubeTextureLoader();
+				loader.setPath( 'textures/Yokohama3/' );
+
+			var textureCube = loader.load( [
+					'posx.jpg', 'negx.jpg',
+					'posy.jpg', 'negy.jpg',
+					'posz.jpg', 'negz.jpg'
+				] );
+
+      textureCube.onload = function(){render()};
+			scene.background = textureCube;
+			textureCube.minFilter = THREE.LinearMipMapLinearFilter;
+
+			// Instantiate a loader
+			var loader = new THREE.GLTFLoader();
+
+			// Optional: Provide a DRACOLoader instance to decode compressed mesh data
+			//var dracoLoader = new THREE.DRACOLoader();
+			//dracoLoader.setDecoderPath( 'libs/draco/' );
+			//loader.setDRACOLoader( dracoLoader );
+
+				// Load a glTF resource
+				loader.load(
+				// resource URL
+				'models/hulk_buster_iron_man/scene.gltf',
+				// called when the resource is loaded
+				function ( gltf ) {
+
+					scene.add( gltf.scene );
+
+					gltf.animations; // Array<THREE.AnimationClip>
+					gltf.scene; // THREE.Group
+					gltf.scenes; // Array<THREE.Group>
+					gltf.cameras; // Array<THREE.Camera>
+					gltf.asset; // Object
+					light.target = gltf;
+
+				},
+				// called while loading is progressing
+				function ( xhr ) {
+
+					console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+				},
+				// called when loading has errors
+				function ( error ) {
+
+					console.log( 'An error happened' );
+
+				}
+	);
+
+
+  		function init() {
+
+  			//renderer.gammaInput = true;
+  			//renderer.gammaOutput = true;
+  			renderer.setClearColor( 0xf0f0f0 );
+				renderer.outputEncoding = THREE.sRGBEncoding;
+
+  			camera.position.set( 0, 150, 150 );
+        camera.lookAt( new THREE.Vector3(0,0,0));
+  			scene.add( camera );
+
+  			document.body.appendChild( renderer.domElement );
+  			renderer.setPixelRatio( window.devicePixelRatio );
+  			renderer.setSize( window.innerWidth, window.innerHeight );
+
+  			controls.addEventListener( 'change', render );
+  			controls.minDistance = 1;
+  			controls.maxDistance = 10000;
+  			//controls.maxPolarAngle = Math.PI / 2;
+  			controls.enablePan = false;
+  			controls.target.copy(new THREE.Vector3(0,0,0));
+  			controls.update();
+
+  			window.addEventListener( 'resize', onResize, false );
+
+        stats.domElement.style.position = 'absolute';
+  			stats.domElement.style.top = '0px';
+  			document.body.appendChild( stats.domElement );
+
+  		}
+
+  		function onResize() {
+
+  			renderer.setSize( window.innerWidth, window.innerHeight );
+  			camera.aspect = ( window.innerWidth / window.innerHeight );
+  			camera.updateProjectionMatrix();
+
+  		}
+
+  		function update() {
+  			requestAnimationFrame( update );
+  			stats.update();
+  		}
+
+  		function render() {
+  			renderer.render( scene, camera );
+
+  		}
+
+  		function clearGui() {
+
+  			if ( gui ) gui.destroy();
+  			gui = new dat.GUI();
+  			gui.open();
+
+  		}
+
+
+
+      init();
+  		update();
+			render();
+      setInterval(function(){ render(); }, 2000);
+		</script>
+	</body>
+</html>
