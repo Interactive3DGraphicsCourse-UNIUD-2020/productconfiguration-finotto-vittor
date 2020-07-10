@@ -32,6 +32,9 @@ class CanvasHandler{
             console.log(elementId);
             this.canvasElement = document.getElementById(elementId);
             console.log(this.canvasElement);
+            if(!this.canvasElement){
+                return false;
+            }
             return true;
         }
         return false;
