@@ -1,0 +1,24 @@
+{
+  "name": "product-config-finotto-vittor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@types/dat.gui": "^0.7.5",
+    "three": "^0.118.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Interactive3DGraphicsCourse-UNIUD-2020/productconfiguration-finotto-vittor.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Interactive3DGraphicsCourse-UNIUD-2020/productconfiguration-finotto-vittor/issues"
+  },
+  "homepage": "https://github.com/Interactive3DGraphicsCourse-UNIUD-2020/productconfiguration-finotto-vittor#readme"
+}
