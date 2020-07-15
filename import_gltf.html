@@ -93,7 +93,6 @@
 		<script>
 			var scene = new THREE.Scene();
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
-
 			var renderer = new THREE.WebGLRenderer({ antialias: true, physicallyCorrectLights : true });
 
       controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -195,6 +194,12 @@
 					gltf.cameras; // Array<THREE.Camera>
 					gltf.asset; // Object
 					spotLight.target = gltf.scene;
+					model.traverse((o)=>{
+						if(o.isMesh){
+							let mat = new THREE.MeshPhysicalMaterial({reflectivity:0.5,roughness:0.5,map:o.material.map});
+							o.material = mat;
+						}
+					})
 					console.log(gltf);
 					render();
 
