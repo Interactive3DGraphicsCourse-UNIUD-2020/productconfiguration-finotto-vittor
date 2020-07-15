@@ -27,6 +27,69 @@
 	</head>
 	<body>
 
+		<!-- shaders -->
+
+		<script type="text/x-glsl" id="vertex">
+		varying vec3 vNormal;
+		varying vec3 vPosition;
+
+		void main() {
+			vec4 vPos = modelViewMatrix * vec4( position, 1.0 );
+			vPosition = vPos.xyz;
+			vNormal = normalMatrix * normal;
+			gl_Position = projectionMatrix * vPos;
+		}
+		</script>
+
+		<script type="text/x-glsl" id="fragment">
+			varying vec3 vNormal;
+			varying vec3 vPosition;
+			uniform vec3 pointLightPosition; // in world space
+			uniform vec3 clight;
+			uniform vec3 cspec;
+			uniform float roughness;
+			const float PI = 3.14159;
+
+			vec3 FSchlick(float lDoth) {
+				return (cspec + (vec3(1.0)-cspec)*pow(1.0 - lDoth,5.0));
+			}
+
+			float DGGX(float nDoth, float alpha) {
+				float alpha2 = alpha*alpha;
+				float d = nDoth*nDoth*(alpha2-1.0)+1.0;
+				return (  alpha2 / (PI*d*d));
+			}
+
+			float G1(float dotProduct, float k) {
+				return (dotProduct / (dotProduct*(1.0-k) + k) );
+			}
+
+			float GSmith(float nDotv, float nDotl) {
+					float k = roughness*roughness;
+					return G1(nDotl,k)*G1(nDotv,k);
+			}
+
+			void main() {
+				vec4 lPosition = viewMatrix * vec4( pointLightPosition, 1.0 );
+				vec3 l = normalize(lPosition.xyz - vPosition.xyz);
+				vec3 n = normalize( vNormal );  // interpolation destroys normalization, so we have to normalize
+				vec3 v = normalize( -vPosition);
+				vec3 h = normalize( v + l);
+				// small quantity to prevent divisions by 0
+				float nDotl = max(dot( n, l ),0.000001);
+				float lDoth = max(dot( l, h ),0.000001);
+				float nDoth = max(dot( n, h ),0.000001);
+				float vDoth = max(dot( v, h ),0.000001);
+				float nDotv = max(dot( n, v ),0.000001);
+				vec3 specularBRDF = FSchlick(lDoth)*GSmith(nDotv,nDotl)*DGGX(nDoth,roughness*roughness)/
+					(4.0*nDotl*nDotv);
+				vec3 outRadiance = PI* clight * nDotl * specularBRDF;
+				// gamma encode the final value
+				gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
+				//gl_FragColor = vec4(outRadiance,1.0);
+			}
+		</script>
+
 		<script>
 			var scene = new THREE.Scene();
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
@@ -51,7 +114,7 @@
 			scene.add( spotLight );
 
 			var spotLightHelper = new THREE.SpotLightHelper( spotLight );
-			scene.add( spotLightHelper );
+			//scene.add( spotLightHelper );
 
 
 
@@ -65,27 +128,54 @@
       var gui;
   		var stats = new Stats();
 
+			// default: white, 1.0 intensity
+			var lightParameters = {
+				red: 1.0,
+				green: 1.0,
+				blue: 1.0,
+				intensity: 1.0,
+			}
+
+			// default: gold
+			var cspec = {
+				red: 1.0,
+				green: 0.71,
+				blue: 0.29,
+				roughness: 0.54
+			}
+
+			var uniforms = {
+						cspec:	{ type: "v3", value: new THREE.Vector3() },
+						roughness: {type: "f", value: 0.5},
+						pointLightPosition:	{ type: "v3", value: spotLight.position },
+						clight:	{ type: "v3", value: new THREE.Vector3() },
+					};
+
+			vs = document.getElementById("vertex").textContent;
+			fs = document.getElementById("fragment").textContent;
+
 
 			var loader = new THREE.CubeTextureLoader();
 				loader.setPath( 'textures/Yokohama3/' );
 
-			var textureCube = loader.load( [
+			var textureCube = loader.load( urls=[
 					'posx.jpg', 'negx.jpg',
 					'posy.jpg', 'negy.jpg',
 					'posz.jpg', 'negz.jpg'
-				] );
+				], onLoad=render );
 
-      textureCube.onload = function(){render()};
-			scene.background = textureCube;
+			//scene.background = textureCube;
 			textureCube.minFilter = THREE.LinearMipMapLinearFilter;
 
 			// Instantiate a loader
 			var loader = new THREE.GLTFLoader();
 
 			// Optional: Provide a DRACOLoader instance to decode compressed mesh data
-			//var dracoLoader = new THREE.DRACOLoader();
-			//dracoLoader.setDecoderPath( 'libs/draco/' );
-			//loader.setDRACOLoader( dracoLoader );
+			var dracoLoader = new THREE.DRACOLoader();
+			dracoLoader.setDecoderPath( 'libs/draco/' );
+			loader.setDRACOLoader( dracoLoader );
+			var model;
+			var shaderMaterial = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: vs, fragmentShader: fs });
 
 				// Load a glTF resource
 				loader.load(
@@ -94,26 +184,31 @@
 				// called when the resource is loaded
 				function ( gltf ) {
 
-					scene.add( gltf.scene );
 
+					model = gltf.scene;
+
+					scene.add( model );
 					gltf.animations; // Array<THREE.AnimationClip>
 					gltf.scene; // THREE.Group
+					gltf.scene.autoUpdate=false;
 					gltf.scenes; // Array<THREE.Group>
 					gltf.cameras; // Array<THREE.Camera>
 					gltf.asset; // Object
-					light.target = gltf;
+					spotLight.target = gltf.scene;
+					console.log(gltf);
+					render();
 
 				},
 				// called while loading is progressing
-				function ( xhr ) {
+				function ( gltf ) {
 
-					console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+					console.log( ( gltf.loaded / gltf.total * 100 ) + '% loaded' );
 
 				},
 				// called when loading has errors
 				function ( error ) {
 
-					console.log( 'An error happened' );
+					console.log( 'An error happened' +error);
 
 				}
 	);
@@ -121,8 +216,9 @@
 
   		function init() {
 
-  			//renderer.gammaInput = true;
-  			//renderer.gammaOutput = true;
+  			renderer.gammaInput = true;
+  			renderer.gammaOutput = true;
+				render.gammaFactor = 2.2;
   			renderer.setClearColor( 0xf0f0f0 );
 				renderer.outputEncoding = THREE.sRGBEncoding;
 
@@ -164,6 +260,7 @@
   		}
 
   		function render() {
+				updateUniforms();
   			renderer.render( scene, camera );
 
   		}
@@ -176,12 +273,52 @@
 
   		}
 
+			function buildGui() {
+
+				clearGui();
+				lightSettings = gui.addFolder('Light Parameters');
+				lightSettings.add(lightParameters,'red').min(0).max(1).onChange( function(newVal) { render() });
+				lightSettings.add(lightParameters,'green').min(0).max(1).onChange( function(newVal) { render() });
+				lightSettings.add(lightParameters,'blue').min(0).max(1).onChange( function(newVal) { render() });
+				lightSettings.add(lightParameters,'intensity').min(0).max(10000).onChange( function(newVal) { render() });
+
+				materialSettings = gui.addFolder('material settings');
+				materialSettings.add(cspec,'red').min(0).max(1).onChange( function(newVal) { render() });
+				materialSettings.add(cspec,'green').min(0).max(1).onChange( function(newVal) { render() });
+				materialSettings.add(cspec,'blue').min(0).max(1).onChange( function(newVal) { render() });
+				materialSettings.add(cspec,'roughness').min(0).max(1).onChange( function(newVal) { render() });
+			}
+
+			function updateUniforms() {
+
+					uniforms.cspec.value = new THREE.Vector3(cspec.red,cspec.green,cspec.blue);
+					uniforms.roughness.value = cspec.roughness>0.0?cspec.roughness:0.01;
+					uniforms.clight.value = new THREE.Vector3(
+							lightParameters.red * lightParameters.intensity,
+					    lightParameters.green * lightParameters.intensity,
+							lightParameters.blue * lightParameters.intensity);
+
+							if(model){
+								model.traverse((o) => {
+								if (o.isMesh) {
+									//o.material = shaderMaterial;
+									o.material.roughness = uniforms.roughness.value;
+									//o.material.vertexShader= vs;
+									//o.material.fragmentShader= fs;
+
+									console.log(o.material);
+								} //o.material = shaderMaterial;
+							});
+						}
+			}
+
 
 
       init();
+			buildGui();
   		update();
 			render();
-      setInterval(function(){ render(); }, 2000);
+      //setInterval(function(){render(); }, 2000);
 		</script>
 	</body>
 </html>
