@@ -23,6 +23,7 @@
     <script src="libs/OrbitControls.js"></script>
     <script src="libs/OBJLoader.js"></script>
     <script src="libs/GLTFLoader.js"></script>
+		<script src="libs/MTLLoader.js"></script>
 	</head>
 	<body>
 
@@ -47,6 +48,7 @@
 
 
 		<script>
+			var oldObject;
 			var scene = new THREE.Scene();
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
 
@@ -54,8 +56,19 @@
 
       controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-			//var light = new THREE.HemisphereLight( 0xffffff, 0x000000, 8 );
-			//scene.add( light );
+			var spotLight = new THREE.SpotLight( 0xffffff );
+			spotLight.position.set( 10, 600, 10 );
+
+			spotLight.castShadow = true;
+
+			spotLight.shadow.mapSize.width = 1024;
+			spotLight.shadow.mapSize.height = 1024;
+
+			spotLight.shadow.camera.near = 500;
+			spotLight.shadow.camera.far = 4000;
+			spotLight.shadow.camera.fov = 30;
+
+			scene.add( spotLight );
 
 
 			var vs = document.getElementById("vertex").textContent;
@@ -63,11 +76,7 @@
 
 
       // default: red plastic
-			var materialColorParams = {
-        red: 1.0,
-				green: 0.0,
-				blue: 0.0
-			};
+			var product_materials = {};
 
       var product = {
         product: "Sphere"
@@ -96,12 +105,15 @@
 
       sphere.matrixAutoUpdate=false;
       sphere.matrix.makeScale(ratio.x,ratio.y, ratio.z);
-
+			sphere.name="Sphere";
+			oldObject = sphere;
 
 
       var container = new THREE.Object3D();
       container.add(sphere);
       scene.add(container);
+			camera.lookAt( container );
+			spotLight.target=container;
       var gui;
   		var stats = new Stats();
 
@@ -113,11 +125,13 @@
 					'posx.jpg', 'negx.jpg',
 					'posy.jpg', 'negy.jpg',
 					'posz.jpg', 'negz.jpg'
-				] );
+				], onLoad=render );
 
-      textureCube.onload = function(){render()};
+			textureCube.onload = function(){render();};
 			scene.background = textureCube;
 			textureCube.minFilter = THREE.LinearMipMapLinearFilter;
+
+			var all_materials = {};
 
 
   		function init() {
@@ -181,43 +195,178 @@
   			clearGui();
         var products_list = ["IronMan", "IronMan-Helmet-1", "IronMan-Helmet-2", "Hulk-Buster-IronMan", "IronMan-Mark42", "Arc-Reactor", "Sphere"]
         gui.add(product, "product", products_list).onChange( function(newVal) {
-          while(container.children.length>0){
-            container.remove(container.children[0])
+					if(oldObject){ oldObject.visible=false;}
+          for(child of container.children){
+          	if(newVal=="Sphere" && child.name=="Sphere"){
+							child.visible=true;
+							oldObject = child;
+							var product_materials = [];
+          	} else if(newVal=="IronMan" && child.name=="IronMan"){
+							child.visible = true;
+							oldObject = child;
+							var product_materials = all_materials["IronMan"];
+          	} else if(newVal=="IronMan-Helmet-1" && child.name=="IronMan_Helmet_1"){
+							child.visible = true;
+							oldObject = child;
+							var product_materials = all_materials["IronMan_Helmet_1"];
+          	} else if(newVal=="IronMan-Helmet-2" && child.name=="IronMan_Helmet_2"){
+							child.visible = true;
+							oldObject = child;
+							var product_materials = all_materials["IronMan_Helmet_2"];
+          	} else if(newVal=="Hulk-Buster-IronMan" && child.name=="Hulk_Buster_IronMan"){
+							child.visible = true;
+							oldObject = child;
+							var product_materials = all_materials["Hulk_Buster_IronMan"];
+          	} else if(newVal=="IronMan-Mark42" && child.name=="IronMan_Mark42"){
+							child.visible = true;
+							oldObject = child;
+							var product_materials = all_materials["IronMan_Mark42"];
+          	} else if(newVal=="Arc-Reactor" && child.name=="Arc_Reactor"){
+							child.visible = true;
+							oldObject = child;
+							var product_materials = all_materials["Arc_Reactor"];
           }
-          if(newVal=="Sphere"){
-            container.add(sphere);
-            camera.lookAt( sphere );
-            render();
-          } else if(newVal=="IronMan"){
-            model_loader("models/IronMan/IronMan.obj");
-          } else if(newVal=="IronMan-Helmet-1"){
-            model_loader("models/ironman_helmet/obj/helmet.obj");
-          } else if(newVal=="IronMan-Helmet-2"){
-            model_loader("models/30-iron-man-helmet-obj/iron_man_helmet.obj");
-          } else if(newVal=="Hulk-Buster-IronMan"){
-            model_loader("models/hulk_buster_iron_man/scene.gltf");
-          } else if(newVal=="IronMan-Mark42"){
-            model_loader("models/iron-man-mark-42/source/Iron_Man_Mark_42/Mark_42.obj");
-          } else if(newVal=="Arc-Reactor"){
-            model_loader("models/Arc_Reactor/Arc_Reactor.obj");
-          }
-
+				}
+				updateGuiMaterials(product_materials);
+				render();
         });
-        materialColor = gui.addFolder('Material Color');
-        materialColor.add(materialColorParams,'red').min(0).max(1).onChange( function(newVal) { render() });
-        materialColor.add(materialColorParams,'green').min(0).max(1).onChange( function(newVal) { render() });
-        materialColor.add(materialColorParams,'blue').min(0).max(1).onChange( function(newVal) { render() });
+        materials=gui.addFolder('Materials');
   		}
+
+			function updateGuiMaterials(productMaterials){
+				product_materials = {};
+				var folder = gui.__folders["Materials"];
+				folder.close();
+				gui.__ul.removeChild(folder.domElement.parentNode);
+				delete gui.__folders["Materials"];
+				materials=gui.addFolder('Materials');
+				var idx = 1;
+				for(var material in productMaterials){
+					product_materials[material]=material;
+					//console.log(product_materials);
+					materials.add(product_materials, material).onChange( function(newVal) { render() });
+				}
+			}
 
   		function updateUniforms() {
 
-          uniforms.materialColor.value = new THREE.Vector3(materialColorParams.red,
-  								materialColorParams.green,materialColorParams.blue);
+
 
   		}
 
 
-      function model_loader(url){
+			function load_objects(){
+				objects_url = [
+					["models/IronMan/IronMan.obj", "IronMan", "models/IronMan/IronMan.mtl"],
+					["models/ironman_helmet/obj/helmet.obj", "IronMan_Helmet_1", "models/ironman_helmet/obj/helmet.mtl"],
+					["models/30-iron-man-helmet-obj/iron_man_helmet.obj", "IronMan_Helmet_2", "models/30-iron-man-helmet-obj/iron man helmet.mtl"],
+					["models/hulk_buster_iron_man/scene.gltf", "Hulk_Buster_IronMan", ""],
+					["models/iron-man-mark-42/source/Iron_Man_Mark_42/Mark_42.obj", "IronMan_Mark42", "models/iron-man-mark-42/source/Iron_Man_Mark_42/Mark 42.mtl"],
+					["models/Arc_Reactor/Arc_Reactor.obj", "Arc_Reactor", "models/Arc_Reactor/Arc Reactor OBJ.mtl"]
+				]
+				for(let url_name of objects_url){
+					model_loader(url_name[0], url_name[1], url_name[2]);
+				}
+
+			}
+
+			function model_loader(url, name, url2){
+				if(url2==""){
+					gltf_loader(url, name);
+				} else {
+					obj_loader(url, name, url2);
+				}
+			}
+
+
+			function gltf_loader(url, name){
+				// Instantiate a loader
+				var loader = new THREE.GLTFLoader();
+				// Load a glTF resource
+				loader.load(
+				// resource URL
+				url,
+				// called when the resource is loaded
+				function ( gltf ) {
+					var model = gltf.scene;
+					gltf.animations; // Array<THREE.AnimationClip>
+					gltf.scene; // THREE.Group
+					gltf.scene.autoUpdate=false;
+					gltf.scenes; // Array<THREE.Group>
+					gltf.cameras; // Array<THREE.Camera>
+					gltf.asset; // Object
+					//spotLight.target = gltf.scene;
+					model.traverse((o)=>{
+						if(o.isMesh){
+							all_materials[name] = {material: o.material};
+						}
+					})
+					var sizeO = new THREE.Box3().setFromObject(model).getSize();
+          var box = new THREE.Box3(
+            new THREE.Vector3(-50,-50,-50),
+            new THREE.Vector3(50,50,50)
+          );
+          var sizeB = box.getSize();
+          var ratio = sizeB.divide( sizeO );
+
+          model.matrixAutoUpdate=false;
+          var min = ratio.x;
+          if(ratio.y<min) {min=ratio.y;}
+          if(ratio.z<min) {min=ratio.z;}
+          model.matrix.makeScale(min, min, min);
+          container.add(model);
+					model.visible=false;
+					model.name=name;
+				},
+				// called while loading is progressing
+				function ( gltf ) {
+					console.log( ( gltf.loaded / gltf.total * 100 ) + '% loaded' );
+				},
+				// called when loading has errors
+				function ( error ) {
+					console.log( 'An error happened' +error);
+				});
+			}
+
+
+			function obj_loader(url, name, mtl_url){
+				var mtlLoader = new THREE.MTLLoader();
+				mtlLoader.load( mtl_url, function( materials ) {
+					all_materials[name]=materials.materials;
+					materials.preload();
+					var objLoader = new THREE.OBJLoader();
+					objLoader.setMaterials( materials );
+					objLoader.load( url, function ( object ) {
+						var sizeO = new THREE.Box3().setFromObject(object).getSize();
+						var box = new THREE.Box3(
+							new THREE.Vector3(-50,-50,-50),
+							new THREE.Vector3(50,50,50)
+						);
+						var sizeB = box.getSize();
+						var ratio = sizeB.divide( sizeO );
+
+						object.matrixAutoUpdate=false;
+						var min = ratio.x;
+						if(ratio.y<min) {min=ratio.y;}
+						if(ratio.z<min) {min=ratio.z;}
+						object.matrix.makeScale(min, min, min);
+						container.add(object);
+						object.visible=false;
+						object.name=name;
+					},
+					// called while loading is progressing
+					function ( gltf ) {
+						console.log( ( gltf.loaded / gltf.total * 100 ) + '% loaded' );
+					},
+					// called when loading has errors
+					function ( error ) {
+						console.log( 'An error happened' +error);
+					});
+				});
+			}
+
+
+			function old_model_loader(url, name){
         if(url.substring(url.length - 3, url.length)=="obj"){
           var loader = new THREE.OBJLoader();
           var gltf = false;
@@ -242,17 +391,20 @@
           if(ratio.z<min) {min=ratio.z;}
           object.matrix.makeScale(min, min, min);
           container.add(object);
-          render();
+					object.visible=false;
+					object.name=name;
+					console.log(name+": loaded");
+          //render();
         });
 
-      };
+      }
 
 
       init();
   		buildGui();
+			load_objects();
   		update();
 			render();
-      setInterval(function(){ render(); }, 2000);
 		</script>
 	</body>
 </html>
