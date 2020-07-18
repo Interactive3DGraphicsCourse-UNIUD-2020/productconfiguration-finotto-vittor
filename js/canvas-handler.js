@@ -14,6 +14,7 @@ class CanvasHandler{
     constructor(selector){
         console.log("ctor canvas");
         this.setup(selector);
+        window.addEventListener('resize',this.resize,false);
     }
     /**
      * 
@@ -57,5 +58,10 @@ class CanvasHandler{
         requestAnimationFrame(this.renderLoop.bind(this));
         this.update();
         this.renderer.render(this.scene,this.camera);
+    }
+    resize(){
+        // TODO Resize function
+        console.log("Resize");
+        this.renderer.domElement.setSize(this.canvasElement.clientWidth,this.canvasElement.clientHeight);
     }
 }

@@ -18,7 +18,26 @@ let cubeMap =  new THREE.CubeTextureLoader().setPath('textures/Yokohama3/').load
 let light = new THREE.PointLight(new THREE.Color(1,1,1),1,5,2);
 let cube = new THREE.BoxGeometry(1,1,1);
 
-let mat = new THREE.MeshPhysicalMaterial({color:new THREE.Color(1,0,0),envMap:cubeMap,metalness:0.5,roughness:0.5});
+// Test material
+// let mat = new THREE.MeshPhysicalMaterial({color:new THREE.Color(1,0,0),envMap:cubeMap,metalness:0.5,roughness:0.5});
+console.log(document.getElementById("vs1"));
+let vs1 = (document.querySelector("#vs1")).textContent;
+let fs1 = (document.querySelector("#fs1")).textContent;
+
+let mat = new THREE.ShaderMaterial({
+    uniforms:{
+        color:{value:new THREE.Vector4(0,0,1,0.5)},
+        metalness:{value:0.5},
+        roughness:{value:0.5},
+        light:{ value:{
+            position: light.position,
+            color: light.color,
+            intensity:light.intensity
+        }}
+    },
+    vertexShader:vs1,
+    fragmentShader:fs1
+});
 let mesh = new THREE.Mesh(cube,mat);
 
 // Setup Scene

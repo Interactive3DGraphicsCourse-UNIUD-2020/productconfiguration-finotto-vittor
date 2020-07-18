@@ -9,6 +9,26 @@
 </head>
 
 <body>
+    <script type="text/glsl" id="vs1">
+        void main(){
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+        }
+    </script>
+    <script type="text/glsl" id="fs1">
+        struct Light {
+            vec3 position;
+            vec3 color;
+            float intensity;
+        };
+        uniform Light light;
+        uniform vec4 color;
+        uniform float metalness;
+        uniform float roughness;
+        void main(){
+            float scale = 100.0/gl_FragCoord.y;
+            gl_FragColor = color*scale;
+        }
+    </script>
 	<script src="libs/three.js"></script>
 	<script src="libs/stats.min.js"></script>
 	<script src="libs/dat.gui.min.js"></script>
@@ -16,6 +36,7 @@
     <script src="./js/gui-binder.js"></script>
     <script src="./js/canvas-handler.js"></script>
     <script src="./js/site.js"></script>
+    
 </body>
 
 </html>
