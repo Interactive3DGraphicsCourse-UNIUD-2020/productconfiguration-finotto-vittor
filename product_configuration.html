@@ -5,15 +5,47 @@
 		<style>
 
 		body {
-			font-family: Monospace;
-			background-color: #f0f0f0;
+			font-family: Arial, sans-serif;
+			color: #f0f0f0;
+			background-color: #6A0C0B; //#4A1919;
 			margin: 0px;
 			overflow: hidden;
 		}
 
 		canvas {
-			width: 100%;
+			width: 75%;
 			height: 100%;
+		}
+
+		#gui {
+			position: absolute;
+			top: 2px;
+			right: 25%;
+		}
+
+		#acme{
+			position: absolute;
+			bottom: 2px;
+			left: 2px;
+		}
+
+		#stark{
+			position: absolute;
+			bottom: 2px;
+			right: 25%;
+		}
+
+		#description{
+			position: absolute;
+			height: 100%;
+			width: 24.5%;
+			right: 2px;
+			top:2px;
+		}
+		#button{
+			position: absolute;
+			right: 10%;
+			bottom: 30%;
 		}
 
 	</style>
@@ -26,7 +58,24 @@
 		<script src="libs/MTLLoader.js"></script>
 	</head>
 	<body>
-
+		<img src="logos/acme.png" alt="ACME logo" id="acme">
+		<img src="logos/stark.png" alt="Stark logo" id="stark">
+		<div id=description>
+			<font size=6>
+				A.C.M.E. industrustrial presents:<br>
+				<b>STARK INDUSTRIES COLLABORATION</b>
+			</font>
+			<br><br>
+			We produdly announce in our store armors and products created by Stark Industries<br>
+			Here you can find some <b>IronMan helmets</b>, <b>Ironman armors</b> such as <b>Mark42</b> and <b>Hulk Buster</b> version, and even the <b>Ark Reactor</b>, <b><i>completely configurable!</i></b> <br>
+			Edit your product as you wish and press the <b>ORDER NOW</b> button, later on you will receive all the other informations!
+		</div>
+		<button id="button" onclick="done()"> ORDER NOW! </button>
+		<script>
+		function done(){
+			alert("Thank you for your order");
+		}
+		</script>
 		<script type="text/x-glsl" id="vertex">
 			uniform vec3 materialColor;
 			varying vec3 vColor;
@@ -50,7 +99,7 @@
 		<script>
 			var oldObject;
 			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
+			var camera = new THREE.PerspectiveCamera( 75, 0.75*window.innerWidth / window.innerHeight, 0.1, 10000 );
 
 			var renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -140,13 +189,13 @@
   			//renderer.gammaOutput = true;
   			renderer.setClearColor( 0xf0f0f0 );
 
-  			camera.position.set( 0, 150, 150 );
+  			camera.position.set( 0, 100, 150 );
         camera.lookAt( new THREE.Vector3(0,0,0));
   			scene.add( camera );
 
   			document.body.appendChild( renderer.domElement );
   			renderer.setPixelRatio( window.devicePixelRatio );
-  			renderer.setSize( window.innerWidth, window.innerHeight );
+  			renderer.setSize( 0.75*window.innerWidth, window.innerHeight );
 
   			controls.addEventListener( 'change', render );
   			controls.minDistance = 1;
@@ -166,8 +215,8 @@
 
   		function onResize() {
 
-  			renderer.setSize( window.innerWidth, window.innerHeight );
-  			camera.aspect = ( window.innerWidth / window.innerHeight );
+  			renderer.setSize( 0.75*window.innerWidth, window.innerHeight );
+  			camera.aspect = ( 0.75*window.innerWidth / window.innerHeight );
   			camera.updateProjectionMatrix();
 
   		}
@@ -186,7 +235,8 @@
   		function clearGui() {
 
   			if ( gui ) gui.destroy();
-  			gui = new dat.GUI();
+				gui = new dat.GUI( { autoPlace: true } );
+				gui.domElement.id = 'gui';
   			gui.open();
 
   		}
