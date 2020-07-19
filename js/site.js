@@ -23,9 +23,9 @@ let mat, mesh;
  * This bad code needed to be sure that all needed Shaders are loaded before creating material
  * could be improved
  */
-ResourceManager.loadResource(Resources.BasicVertexShader(), (res) => {
+ResourceManager.loadResource(Resources.PhongVertexShader(), (res) => {
     let vs1 = res.responseText;
-    ResourceManager.loadResource(Resources.BasicFragmentShader(), (res) => {
+    ResourceManager.loadResource(Resources.PhongFragmentShader(), (res) => {
         let fs1 = res.responseText;
         // code here 
         mat = new THREE.ShaderMaterial({
