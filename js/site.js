@@ -24,9 +24,9 @@ let mat, mesh;
  * could be improved
  */
 ResourceManager.loadResource(Resources.BasicVertexShader(), (res) => {
-    let vs1 = res;
+    let vs1 = res.responseText;
     ResourceManager.loadResource(Resources.BasicFragmentShader(), (res) => {
-        let fs1 = res;
+        let fs1 = res.responseText;
         // code here 
         mat = new THREE.ShaderMaterial({
             uniforms: {
@@ -45,27 +45,22 @@ ResourceManager.loadResource(Resources.BasicVertexShader(), (res) => {
             vertexShader: vs1,
             fragmentShader: fs1
         });
+        console.log(mat);
         mesh = new THREE.Mesh(cube, mat);
         canvas.scene.add(mesh);
+        //bind model to controls
+        gui.model = mesh;
+        gui.mat = mat;
     });
 });
 
-// Test material
-// let mat = new THREE.MeshPhysicalMaterial({color:new THREE.Color(1,0,0),envMap:cubeMap,metalness:0.5,roughness:0.5});
-// let vs1 = (document.querySelector("#vs1")).textContent;
-// let fs1 = (document.querySelector("#fs1")).textContent;
 // Setup Scene
 light.position.set(0, 1, 0);
 canvas.camera.position.z = 5;
+canvas.scene.add(light);
 
 // CubeMap
 canvas.scene.background = cubeMap;
-
-//bind model to controls
-gui.model = mesh;
-gui.mat = mat;
-
-canvas.scene.add(light);
 // Render Loop
 canvas.update = () => {
     //mesh.rotateY(gui.rotation);

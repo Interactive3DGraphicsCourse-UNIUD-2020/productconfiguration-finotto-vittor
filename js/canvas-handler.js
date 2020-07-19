@@ -1,10 +1,23 @@
+
 class CanvasHandler{
+    /**
+     * @type {Scene}
+     */
     scene;
+    /**
+     * @type {Camera}
+     */
     camera;
+    /**
+     * @type {WebGLRenderer}
+     */
     renderer;
+    /**
+     * @type {HTMLElement}
+     */
     canvasElement;
     /**
-     * {()=>void} update function
+     * @type {()=>void} update function
      */
     update;
     /**
