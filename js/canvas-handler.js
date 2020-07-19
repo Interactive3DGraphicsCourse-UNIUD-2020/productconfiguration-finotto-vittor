@@ -61,7 +61,5 @@ class CanvasHandler{
     }
     resize(){
         // TODO Resize function
-        console.log("Resize");
-        this.renderer.domElement.setSize(this.canvasElement.clientWidth,this.canvasElement.clientHeight);
     }
 }
