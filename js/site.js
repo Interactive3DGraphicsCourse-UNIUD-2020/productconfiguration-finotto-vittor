@@ -30,14 +30,15 @@ canvas.scene.add(light2);
  * This bad code needed to be sure that all needed Shaders are loaded before creating material
  * could be improved
  */
-ResourceManager.loadResource(Resources.BasicVertexShader(), (res) => {
+ResourceManager.loadResource(Resources.PBRVertexShader(), (res) => {
     let vs1 = res.responseText;
-    ResourceManager.loadResource(Resources.BasicFragmentShader(), (res) => {
+    ResourceManager.loadResource(Resources.PBRFragmentShader(), (res) => {
         let fs1 = res.responseText;
         // code here 
         mat = new THREE.ShaderMaterial({
             uniforms: {
                 color: { value: new THREE.Vector4(1, 1, 1,1) },
+                ambient:{value:0.1},
                 light: {
                     value:[ 
                         {position: light.position, color: light.color, intensity: light.intensity},

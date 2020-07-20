@@ -24,9 +24,6 @@ class GUIBinder{
         this._rotationz = value;
         this.updateDataInModel()
     }
-
-
-
     _roughness=0.5;
     get roughness(){
         return this._roughness;

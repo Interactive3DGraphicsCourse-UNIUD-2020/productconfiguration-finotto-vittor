@@ -7,15 +7,18 @@ struct Light{
 };
 
 uniform Light light[MAX_LIGHTS];
-
 uniform vec4 color;
+uniform float ambient;
+
 varying vec3 vNormal;
 varying mat4 vModelViewMatrix;
 varying vec3 vPosition;
 
 vec3 vCamPos;
 vec3 vLightPos;
+
 const float PI = 3.14159;
+
 vec4 simpleLight(Light light){
     vLightPos = vec3(viewMatrix * vec4(light.position,1.0));
     vCamPos = (vModelViewMatrix * vec4(vPosition,1.0)).xyz;
@@ -30,5 +33,5 @@ void main(){
     for(int i =0;i<MAX_LIGHTS;i++){
         result=result + simpleLight(light[i]);
     } 
-    gl_FragColor=result;
+    gl_FragColor=result+(color*ambient);
 }
