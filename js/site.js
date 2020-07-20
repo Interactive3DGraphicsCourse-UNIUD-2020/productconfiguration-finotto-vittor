@@ -14,14 +14,14 @@ let cubeMap = new THREE.CubeTextureLoader().setPath('textures/Yokohama3/').load(
     'posz.jpg',
     'negz.jpg'
 ]);
-let light = new THREE.PointLight(new THREE.Color(1, 1, 1), 1, 5, 2);
-let light2 = new THREE.PointLight(new THREE.Color(1, 1, 1), 1, 5, 2);
+let light = new THREE.PointLight(new THREE.Color(1, 1, 1), 2, 5, 2);
+let light2 = new THREE.PointLight(new THREE.Color(1, 1, 1),2, 5, 2);
 let cube = new THREE.SphereGeometry(1, 10, 10);
 let mat, mesh;
 
 // Setup Scene
-light2.position.set(1, 0, 0);
-light.position.set(0, 1, 0);
+light2.position.set(2, 0, 0);
+light.position.set(0, 2, 0);
 canvas.camera.position.z = 5;
 canvas.scene.add(light);
 canvas.scene.add(light2);
@@ -29,12 +29,12 @@ canvas.scene.add(light2);
  * This bad code needed to be sure that all needed Shaders are loaded before creating material
  * could be improved
  */
-ResourceManager.loadResource(Resources.PBRVertexShader(), (res) => {
+ResourceManager.loadResource(Resources.MicrofacetVertexShader(), (res) => {
     /**
      * Veretex shader loaded
      */
     let vs1 = res.responseText;
-    ResourceManager.loadResource(Resources.PBRFragmentShader(), (res) => {
+    ResourceManager.loadResource(Resources.MicrofacetFragmentShader(), (res) => {
         /**
          * Fragment shader Loaded
          */
@@ -49,8 +49,8 @@ ResourceManager.loadResource(Resources.PBRVertexShader(), (res) => {
             //mat = new THREE.MeshBasicMaterial({map:texture});
             mat = new THREE.ShaderMaterial({
                 uniforms: {
-                    color: { value: new THREE.Vector4(1, 1, 1, 1) },
                     roughness: { value: 0.5 },
+                    metalness:{value: 1},
                     map: {value: texture},
                     light: {
                         value: [

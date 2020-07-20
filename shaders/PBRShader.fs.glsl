@@ -26,7 +26,7 @@ vec3 schlick(float ldoth){
     vec3 f0 = tColor;//color.xyz;    // metal workflow
     //vec3 f0 = vec3(0.04);// dielettric workflow
     
-    return f0 + (1.0-f0) * pow(1.0-ldoth,5.0);
+    return f0 + ((1.0-f0) * pow(1.0-ldoth,5.0));
 }
 float ggx(float ndoth){
     float alpha = pow( roughness,4.0);
@@ -47,16 +47,18 @@ vec3 microfacet(Light light,vec3 position, vec3 normal){
     vec3 lightIntensity = vec3(light.intensity*light.color)/(dist*dist);
     vec3 v = normalize(-vPosition);
     vec3 h = normalize(v+l);
-    float ndoth = dot(normal,h);
-    float ldoth = dot(l,h);
-    float ndotl = dot(normal,l);
-    float ndotv = dot(normal,v);
+    float ndoth = max(dot(normal,h),0.00004);
+    float ldoth = max(dot(l,h),0.00004);
+    float ndotl = max(dot(normal,l),0.00004);
+    float ndotv = max(dot(normal,v),0.00004);
 
     vec3 specular = 0.25 *ggx(ndoth)* schlick(ldoth) * smith(ndotl)* smith(ndotv);
     return (diffuse + PI*specular)*lightIntensity *ndotl;
 }
 
 void main(){
+    // vec3 cDiff/PI;
+    // vec3 cLight = light.color * light.intensity;
     tColor = texture2D(map,vUV).xyz;
     vec3 l = vec3(0.0); 
     vec3 result= vec3(0.0);

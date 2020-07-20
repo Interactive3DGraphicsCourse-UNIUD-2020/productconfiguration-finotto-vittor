@@ -34,9 +34,16 @@ class Resources{
     /**
    * PBR Shader Fragment Path
    */
+  static MicrofacetFragmentShader = ()=>{return Resources._Shader()+Resources._FragShaderName("MicrofacetShader")}
+
+    /**
+   * Basic Shader Vertex Path
+   */
+  static MicrofacetVertexShader = ()=>{return Resources._Shader()+Resources._VertShaderName("MicrofacetShader")}
+    /**
+   * PBR Shader Fragment Path
+   */
   static PBRFragmentShader = ()=>{return Resources._Shader()+Resources._FragShaderName("PBRShader")}
-
-
 
   static MatGoldAlbedo = ()=>{return Resources._Texture()+"gold/gold-color.jpg"}
 }
