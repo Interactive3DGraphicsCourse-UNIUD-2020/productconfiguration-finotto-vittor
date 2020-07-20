@@ -10,18 +10,20 @@ uniform Light light[MAX_LIGHTS];
 uniform vec4 color;
 uniform float roughness;
 uniform float ambient;
+uniform sampler2D map;
 
 varying vec3 vNormal;
 varying mat4 vModelViewMatrix;
 varying vec3 vPosition;
+varying vec2 vUV;
 
 vec3 vCamPos;
 vec3 vLightPos;
-
+vec3 tColor;
 const float PI = 3.14159;
 
 vec3 schlick(float ldoth){
-    vec3 f0 = color.xyz;    // metal workflow
+    vec3 f0 = tColor;//color.xyz;    // metal workflow
     //vec3 f0 = vec3(0.04);// dielettric workflow
     
     return f0 + (1.0-f0) * pow(1.0-ldoth,5.0);
@@ -38,7 +40,7 @@ float smith(float dotProd){
 }
 vec3 microfacet(Light light,vec3 position, vec3 normal){
      vec3 diffuse =vec3(0.0); // metal work flow
-    //vec3 diffuse = color.xyz; // dielettric workflow
+    //vec3 diffuse = tColor;//color.xyz; // dielettric workflow
     vec3  lPosCamCoord = (vModelViewMatrix * vec4(light.position,1.0)).xyz;
     vec3 l = lPosCamCoord - vPosition;
     float dist = length(l);
@@ -55,6 +57,7 @@ vec3 microfacet(Light light,vec3 position, vec3 normal){
 }
 
 void main(){
+    tColor = texture2D(map,vUV).xyz;
     vec3 l = vec3(0.0); 
     vec3 result= vec3(0.0);
     for(int i =0;i<MAX_LIGHTS;i++){

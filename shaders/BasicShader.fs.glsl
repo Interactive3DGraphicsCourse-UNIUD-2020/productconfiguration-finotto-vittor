@@ -25,15 +25,14 @@ vec4 simpleLight(Light light){
     vLightPos = vec3(viewMatrix * vec4(light.position,1.0));
     vCamPos = (vModelViewMatrix * vec4(vPosition,1.0)).xyz;
     vec3 s = normalize(vLightPos-vCamPos);
-    vec4 d = vec4(light.color,1.0) *light.intensity * texColor * max(dot(s,vNormal),0.0)/(4.0*PI* length(vLightPos-vCamPos)); 
-    return d;
+    return ((vec4(light.color,1.0) * light.intensity) * texColor * max(dot(s,vNormal),0.0))/(1.0*PI* length(vLightPos-vCamPos)); 
+    
 }
 
 void main(){
-    vec4 texColor = texture(map,uv);
     vec4 result= vec4(0,0,0,0);
     for(int i =0;i<MAX_LIGHTS;i++){
         result=result + simpleLight(light[i]);
     } 
-    gl_FragColor=result+(texColor*ambient);
+    gl_FragColor =result;
 }
