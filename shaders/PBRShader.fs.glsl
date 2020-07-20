@@ -8,6 +8,8 @@ struct Light{
 
 uniform Light light[MAX_LIGHTS];
 uniform vec4 color;
+uniform float specular;
+uniform float roughness;
 uniform float ambient;
 
 varying vec3 vNormal;
@@ -19,19 +21,43 @@ vec3 vLightPos;
 
 const float PI = 3.14159;
 
-vec4 simpleLight(Light light){
-    vLightPos = vec3(viewMatrix * vec4(light.position,1.0));
-    vCamPos = (vModelViewMatrix * vec4(vPosition,1.0)).xyz;
-    vec3 s = normalize(vLightPos-vCamPos);
-    vec4 d = vec4(light.color,1.0) *light.intensity * color * max(dot(s,vNormal),0.0)/(4.0*PI* length(vLightPos-vCamPos)); 
-    return d;
+vec3 schlick(float ldoth){
+    // metal workflow
+    vec3 f0 = color.xyz;
+    return f0 + (1.0-f0) * pow(1.0-ldoth,5.0);
+}
+float ggx(float ndoth){
+    float alpha = pow( roughness,4.0);
+    float d = pow(ndoth,2.0) * (alpha-1.0) + 1.0;
+    return alpha / (PI * d * d);
+}
+float smith(float dotProd){
+    float k = (roughness + 1.0) * (roughness +1.0)/ 8.0;
+    float denom = dotProd * (1.0-k) + k;
+    return 1.0 / denom;
+}
+vec3 microfacet(Light light,vec3 position, vec3 normal){
+    vec3 diffuse =vec3(0.0); // metal work flow
+    vec3  lPosCamCoord = (vModelViewMatrix * vec4(light.position,1.0)).xyz;
+    vec3 l = lPosCamCoord - vPosition;
+    float dist = length(l);
+    vec3 lightIntensity = vec3(light.intensity*light.color)/(dist*dist);
+    vec3 v = normalize(-vPosition);
+    vec3 h = normalize(v+l);
+    float ndoth = dot(normal,h);
+    float ldoth = dot(l,h);
+    float ndotl = dot(normal,l);
+    float ndotv = dot(normal,v);
+
+    vec3 specular = 0.25 *ggx(ndoth)* schlick(ldoth) * smith(ndotl)* smith(ndotv);
+    return (diffuse + PI*specular)*lightIntensity *ndotl;
 }
 
 void main(){
-
-    vec4 result= vec4(0,0,0,0);
+    vec3 l = vec3(0.0); 
+    vec3 result= vec3(0.0);
     for(int i =0;i<MAX_LIGHTS;i++){
-        result=result + simpleLight(light[i]);
+        result=result+microfacet(light[i],vPosition,vNormal);
     } 
-    gl_FragColor=result+(color*ambient);
+    gl_FragColor=vec4(result,1.0);
 }

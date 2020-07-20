@@ -59,9 +59,9 @@ class GUIBinder{
         this.gui.add(this,'rotationx',-Math.PI/2,Math.PI/2);
         this.gui.add(this,'rotationy',-Math.PI/2,Math.PI/2);
         this.gui.add(this,'rotationz',-Math.PI/2,Math.PI/2);
-        // this.gui.add(this,'roughness',0,1);
+        this.gui.add(this,'roughness',0,1);
         // this.gui.add(this,'metalness',0,1);
-        // this.gui.add(this,'specular',0,1);
+        this.gui.add(this,'specular',0,1);
     }
     updateDataInModel(){
         // TODO add model transofrmation
@@ -69,11 +69,11 @@ class GUIBinder{
         this.model.rotation.x = this.rotationx;
         this.model.rotation.y = this.rotationy;
         this.model.rotation.z = this.rotationz;
-        this.mat.roughness = this.roughness;
+        this.mat.uniforms.roughness.value = this.roughness;
         this.mat.metalness = this.metalness;
-        this.mat.specular = this.specular;
+        // this.mat.specular = this.specular;
     }
     setModel(){
-        
+
     }
 }
