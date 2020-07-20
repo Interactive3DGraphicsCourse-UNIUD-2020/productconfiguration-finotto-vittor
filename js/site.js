@@ -15,8 +15,8 @@ let cubeMap = new THREE.CubeTextureLoader().setPath('textures/Yokohama3/').load(
     'posz.jpg',
     'negz.jpg'
 ]);
-let light = new THREE.PointLight(new THREE.Color(1, 1, 1),3, 5, 2);
-let light2 = new THREE.PointLight(new THREE.Color(0, 1, 1), 3, 5, 2);
+let light = new THREE.PointLight(new THREE.Color(0, 0, 1),3, 5, 2);
+let light2 = new THREE.PointLight(new THREE.Color(0, 1, 0), 3, 5, 2);
 let cube = new THREE.BoxGeometry(1, 1, 1);
 let mat, mesh;
 
@@ -37,7 +37,7 @@ ResourceManager.loadResource(Resources.BasicVertexShader(), (res) => {
         // code here 
         mat = new THREE.ShaderMaterial({
             uniforms: {
-                color: { value: new THREE.Vector4(1, 0, 0,0.5) },
+                color: { value: new THREE.Vector4(1, 1, 1,1) },
                 light: {
                     value:[ 
                         {position: light.position, color: light.color, intensity: light.intensity},
