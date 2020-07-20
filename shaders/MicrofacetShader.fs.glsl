@@ -14,7 +14,7 @@ uniform vec4 color;
 uniform sampler2D map;
 
 varying vec3 vNormal;
-varying mat4 vViewMatrix;
+varying mat4 vModelViewMatrix;
 varying vec3 vPosition;
 varying vec2 vUV;
 
@@ -41,8 +41,8 @@ float smith(float ndotv,float ndotl){
     return G1(ndotl,k)* G1(ndotv,k);
 }
 vec3 microfacet(Light light){
-    vec3 lpos = (vViewMatrix* vec4(light.position,1.0)).xyz;
-    vec3 pos = (vViewMatrix * vec4(vPosition,1.0)).xyz;
+    vec3 lpos = (viewMatrix* vec4(light.position,1.0)).xyz;
+    vec3 pos = (vModelViewMatrix* vec4(vPosition,1.0)).xyz;
     vec3 l = normalize(lpos-pos); 
     vec3 n = normalize(vNormal);
     vec3 v = normalize(-pos);

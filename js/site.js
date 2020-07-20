@@ -62,6 +62,7 @@ ResourceManager.loadResource(Resources.MicrofacetVertexShader(), (res) => {
                 vertexShader: vs1,
                 fragmentShader: fs1
             });
+            //mat = new THREE.MeshPhysicalMaterial({metalness:1,roughness:0.61,map:texture});
             //cube.uvsNeedUpdate =true;
 
             mesh = new THREE.Mesh(cube, mat);
