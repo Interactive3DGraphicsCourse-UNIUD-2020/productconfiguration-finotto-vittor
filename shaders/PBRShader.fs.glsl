@@ -8,7 +8,6 @@ struct Light{
 
 uniform Light light[MAX_LIGHTS];
 uniform vec4 color;
-uniform float specular;
 uniform float roughness;
 uniform float ambient;
 
@@ -22,8 +21,9 @@ vec3 vLightPos;
 const float PI = 3.14159;
 
 vec3 schlick(float ldoth){
-    // metal workflow
-    vec3 f0 = color.xyz;
+    vec3 f0 = color.xyz;    // metal workflow
+    //vec3 f0 = vec3(0.04);// dielettric workflow
+    
     return f0 + (1.0-f0) * pow(1.0-ldoth,5.0);
 }
 float ggx(float ndoth){
@@ -37,7 +37,8 @@ float smith(float dotProd){
     return 1.0 / denom;
 }
 vec3 microfacet(Light light,vec3 position, vec3 normal){
-    vec3 diffuse =vec3(0.0); // metal work flow
+     vec3 diffuse =vec3(0.0); // metal work flow
+    //vec3 diffuse = color.xyz; // dielettric workflow
     vec3  lPosCamCoord = (vModelViewMatrix * vec4(light.position,1.0)).xyz;
     vec3 l = lPosCamCoord - vPosition;
     float dist = length(l);

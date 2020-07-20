@@ -1,4 +1,3 @@
-
 let canvas = new CanvasHandler("body");
 let gui = new GUIBinder();
 
@@ -15,9 +14,9 @@ let cubeMap = new THREE.CubeTextureLoader().setPath('textures/Yokohama3/').load(
     'posz.jpg',
     'negz.jpg'
 ]);
-let light = new THREE.PointLight(new THREE.Color(0, 1, 1),3, 5, 2);
-let light2 = new THREE.PointLight(new THREE.Color(1, 1, 0), 3, 5, 2);
-let cube = new THREE.BoxGeometry(1, 1, 1);
+let light = new THREE.PointLight(new THREE.Color(1,1, 1),1, 1, 2);
+let light2 = new THREE.PointLight(new THREE.Color(1, 1, 1),5, 1, 2);
+let cube = new THREE.SphereGeometry(1, 10,10);
 let mat, mesh;
 
 // Setup Scene
@@ -33,14 +32,14 @@ canvas.scene.add(light2);
 ResourceManager.loadResource(Resources.PBRVertexShader(), (res) => {
     let vs1 = res.responseText;
     ResourceManager.loadResource(Resources.PBRFragmentShader(), (res) => {
+        let text = new THREE.TextureLoader().load(Resources.MatGoldAlbedo());
         let fs1 = res.responseText;
         // code here 
         mat = new THREE.ShaderMaterial({
             uniforms: {
-                color: { value: new THREE.Vector4(0, 0,0 ,1) },
-                specular:{ value: new THREE.Vector4(0, 0, 0,1) },
+                color: { value: new THREE.Vector4(1, 0, 0 ,1) },
                 roughness:{ value:0.5 },
-                ambient:{value:0.1},
+                map: text,
                 light: {
                     value:[ 
                         {position: light.position, color: light.color, intensity: light.intensity},
@@ -51,6 +50,8 @@ ResourceManager.loadResource(Resources.PBRVertexShader(), (res) => {
             vertexShader: vs1,
             fragmentShader: fs1
         });
+        //cube.addAttribute('uv',new THREE.BufferAttribute(cube.faceVertexUvs,2));
+        
         mesh = new THREE.Mesh(cube, mat);
         canvas.scene.add(mesh);
         //bind model to controls
