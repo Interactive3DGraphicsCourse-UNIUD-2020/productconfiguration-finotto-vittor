@@ -1,4 +1,5 @@
 // Fragment
+#extension GL_OES_standard_derivatives : enable
 #define MAX_LIGHTS 2
 struct Light{
     vec3 position;
@@ -47,7 +48,7 @@ vec3 microfacet(Light light){
     vec3 lpos = (viewMatrix* vec4(light.position,1.0)).xyz;
     vec3 pos = (vModelViewMatrix* vec4(vPosition,1.0)).xyz;
     vec3 l = normalize(lpos-pos); 
-    vec3 n = normalize(tNormal);
+    vec3 n = normalize(vNormal);
     vec3 v = normalize(-pos);
     vec3 h = normalize(v+l);
 
@@ -68,27 +69,27 @@ vec3 microfacet(Light light){
     vec3 result = (PI * spec * (light.color * light.intensity) *ndotl);
     return result;
 }
-vec3 perturbNormal(vec3 eye,vec3 norm){
-    vec3 q0 = dFdx(eye.xyz);
-    vec3 q1 = dFdy(eye.xyz);
-    vec2 st0 = dFdx(vUV.st);
-    vec2 st = dFdy(vUv.st);
+// vec3 perturbNormal(vec3 eye,vec3 norm){
+//     vec3 q0 = dFdx(eye.xyz);
+//     vec3 q1 = dFdy(eye.xyz);
+//     vec2 st0 = dFdx(vUV.st);
+//     vec2 st1 = dFdy(vUV.st);
 
-    vec3 S = normalize(q0 *st1.t - q1 *st0.t);
-    vec3 T = normalize(-q0*st1.s + q1 * st0.s);
-    vec3 N = norm;
+//     vec3 S = normalize(q0 *st1.t - q1 *st0.t);
+//     vec3 T = normalize(-q0*st1.s + q1 * st0.s);
+//     vec3 N = norm;
 
-    vec3 mapN = texture2D(normalMap,vUV).xyz *2.0 -1.0;
-    mapN.xy = 1.0 * mapN.xy;
-    mat3 tsn = mat3(S,T,N);
-    return normalize(tsn * mapN);
-} 
+//     vec3 mapN = texture2D(normalMap,vUV).xyz *2.0 -1.0;
+//     mapN.xy = 1.0 * mapN.xy;
+//     mat3 tsn = mat3(S,T,N);
+//     return normalize(tsn * mapN);
+// } 
 void main(){
     tColor = texture2D(map,vUV);
-    tNormal = perturbNormal(cameraPosition,vNormal);
+    tNormal =  texture2D(normalMap,vUV).xyz;// perturbNormal((vModelViewMatrix * vec4(cameraPosition,1.0)).xyz,(vModelViewMatrix* vec4(vNormal,1.0)).xyz);
 
     vec3 worldPos = vec3(vModelViewMatrix * vec4(vPosition,1.0));
-    vec3 worldNorm = vec3(vModelViewMatrix* vec4(vNormal,0.0));
+    vec3 worldNorm = vec3(vModelViewMatrix* vec4(tNormal,0.0));
     vec3 worldView = normalize(cameraPosition - worldPos);
     vec3 ReflectDir =normalize(reflect(-worldView,worldNorm));
 

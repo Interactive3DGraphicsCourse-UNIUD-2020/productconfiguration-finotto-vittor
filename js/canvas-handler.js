@@ -65,6 +65,7 @@ class CanvasHandler{
     }
     createRenderer(){
         this.renderer = new THREE.WebGLRenderer({antialias:true});
+
         (this.renderer).setSize((this.canvasElement).clientWidth,(this.canvasElement).clientHeight)
     }
     renderLoop(){
