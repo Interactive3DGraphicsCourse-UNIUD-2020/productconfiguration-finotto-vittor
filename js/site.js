@@ -67,7 +67,7 @@ ResourceManager.loadResource(Resources.GlassVertexShader(), (res) => {
             // Glass Setup
             mat = new THREE.ShaderMaterial({
                 uniforms: {
-                    reflection:{value:0.1},
+                    reflection:{value:0.5},
                     eta:{value:0.5},
                     map: {value: texture},
                     envMap:{value:cubeMap},
