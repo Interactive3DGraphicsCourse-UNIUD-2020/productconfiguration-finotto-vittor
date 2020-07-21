@@ -16,7 +16,7 @@ Completato import asincrono (più efficiente) e corretto dei modelli gltf e obj 
 
 ## Finotto
 Aggiunta illuminazione di base alla scena, creazione degli shader dei materiali custom e utilizzo della environment map nel calcolo finale.
-Shader utilizzati:
+Shader utilizzati e relative equazioni:
 -
 -
 -
@@ -25,6 +25,9 @@ Postprocessing:
 
 ## Vittor
 Aggiunta visualizza dell'e-commerce base con descrizione, modifica font e colori, riduzione del canvas e aggiunti loghi.
+
+## Vittor
+Gestione gui dinamica e passaggio dei valori uniforms agli shaders
 
 
 ## Merge finale
