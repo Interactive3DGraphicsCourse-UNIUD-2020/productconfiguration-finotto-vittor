@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Test gltf loaderFinotto - Vittor</title>
-		<style>
 
+<head>
+	<title>Test gltf loaderFinotto - Vittor</title>
+	<style>
 		body {
 			font-family: Monospace;
 			background-color: #f0f0f0;
@@ -15,21 +15,21 @@
 			width: 100%;
 			height: 100%;
 		}
-
 	</style>
-		<script src="libs/three.js"></script>
-		<script src="libs/stats.min.js"></script>
-    <script src="libs/dat.gui.min.js"></script>
-    <script src="libs/OrbitControls.js"></script>
-    <script src="libs/OBJLoader.js"></script>
-    <script src="libs/GLTFLoader.js"></script>
-		<script src="libs/DRACOLoader.js"></script>
-	</head>
-	<body>
+	<script src="libs/three.js"></script>
+	<script src="libs/stats.min.js"></script>
+	<script src="libs/dat.gui.min.js"></script>
+	<script src="libs/OrbitControls.js"></script>
+	<script src="libs/OBJLoader.js"></script>
+	<script src="libs/GLTFLoader.js"></script>
+	<script src="libs/DRACOLoader.js"></script>
+</head>
 
-		<!-- shaders -->
+<body>
 
-		<script type="text/x-glsl" id="vertex">
+	<!-- shaders -->
+
+	<script type="text/x-glsl" id="vertex">
 		varying vec3 vNormal;
 		varying vec3 vPosition;
 
@@ -41,7 +41,7 @@
 		}
 		</script>
 
-		<script type="text/x-glsl" id="fragment">
+	<script type="text/x-glsl" id="fragment">
 			varying vec3 vNormal;
 			varying vec3 vPosition;
 			uniform vec3 pointLightPosition; // in world space
@@ -90,240 +90,249 @@
 			}
 		</script>
 
-		<script>
-			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
-			var renderer = new THREE.WebGLRenderer({ antialias: true, physicallyCorrectLights : true });
+	<script>
+		var scene = new THREE.Scene();
+		var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+		var renderer = new THREE.WebGLRenderer({ antialias: true, physicallyCorrectLights: true });
 
-      controls = new THREE.OrbitControls( camera, renderer.domElement );
-
-
-			var spotLight = new THREE.SpotLight( 0xffffff );
-			spotLight.position.set( 10, 100, 10 );
-
-			spotLight.castShadow = true;
-
-			spotLight.shadow.mapSize.width = 1024;
-			spotLight.shadow.mapSize.height = 1024;
-
-			spotLight.shadow.camera.near = 500;
-			spotLight.shadow.camera.far = 4000;
-			spotLight.shadow.camera.fov = 30;
-
-			scene.add( spotLight );
-
-			var spotLightHelper = new THREE.SpotLightHelper( spotLight );
-			//scene.add( spotLightHelper );
+		controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 
+		var spotLight = new THREE.SpotLight(0xffffff);
+		spotLight.position.set(10, 100, 10);
 
-      var box = new THREE.Box3(
-        new THREE.Vector3(-50,-50,-50),
-        new THREE.Vector3(50,50,50)
-      );
+		spotLight.castShadow = true;
 
-      var sizeB = box.getSize();
+		spotLight.shadow.mapSize.width = 1024;
+		spotLight.shadow.mapSize.height = 1024;
 
-      var gui;
-  		var stats = new Stats();
+		spotLight.shadow.camera.near = 500;
+		spotLight.shadow.camera.far = 4000;
+		spotLight.shadow.camera.fov = 30;
 
-			// default: white, 1.0 intensity
-			var lightParameters = {
-				red: 1.0,
-				green: 1.0,
-				blue: 1.0,
-				intensity: 1.0,
+		scene.add(spotLight);
+		scene.background = new THREE.CubeTextureLoader().setPath('textures/Yokohama3/').load([
+			'posx.jpg',
+			'negx.jpg',
+			'posy.jpg',
+			'negy.jpg',
+			'posz.jpg',
+			'negz.jpg'
+		]);
+		var spotLightHelper = new THREE.SpotLightHelper(spotLight);
+
+		//scene.add( spotLightHelper );
+
+
+
+		var box = new THREE.Box3(
+			new THREE.Vector3(-50, -50, -50),
+			new THREE.Vector3(50, 50, 50)
+		);
+
+		var sizeB = box.getSize();
+
+		var gui;
+		var stats = new Stats();
+
+		// default: white, 1.0 intensity
+		var lightParameters = {
+			red: 1.0,
+			green: 1.0,
+			blue: 1.0,
+			intensity: 1.0,
+		}
+
+		// default: gold
+		var cspec = {
+			red: 1.0,
+			green: 0.71,
+			blue: 0.29,
+			roughness: 0.54
+		}
+
+		var uniforms = {
+			cspec: { type: "v3", value: new THREE.Vector3() },
+			roughness: { type: "f", value: 0.5 },
+			pointLightPosition: { type: "v3", value: spotLight.position },
+			clight: { type: "v3", value: new THREE.Vector3() },
+		};
+
+		vs = document.getElementById("vertex").textContent;
+		fs = document.getElementById("fragment").textContent;
+
+
+		var loader = new THREE.CubeTextureLoader();
+		loader.setPath('textures/Yokohama3/');
+
+		var textureCube = loader.load(urls = [
+			'posx.jpg', 'negx.jpg',
+			'posy.jpg', 'negy.jpg',
+			'posz.jpg', 'negz.jpg'
+		], onLoad = render);
+
+		//scene.background = textureCube;
+		textureCube.minFilter = THREE.LinearMipMapLinearFilter;
+
+		// Instantiate a loader
+		var loader = new THREE.GLTFLoader();
+
+		// Optional: Provide a DRACOLoader instance to decode compressed mesh data
+		var dracoLoader = new THREE.DRACOLoader();
+		dracoLoader.setDecoderPath('libs/draco/');
+		loader.setDRACOLoader(dracoLoader);
+		var model;
+		var shaderMaterial = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: vs, fragmentShader: fs });
+
+		// Load a glTF resource
+		loader.load(
+			// resource URL
+			'models/hulk_buster_iron_man/scene.gltf',
+			// called when the resource is loaded
+			function (gltf) {
+
+
+				model = gltf.scene;
+
+				scene.add(model);
+				gltf.animations; // Array<THREE.AnimationClip>
+				gltf.scene; // THREE.Group
+				gltf.scene.autoUpdate = false;
+				gltf.scenes; // Array<THREE.Group>
+				gltf.cameras; // Array<THREE.Camera>
+				gltf.asset; // Object
+				spotLight.target = gltf.scene;
+				model.traverse((o) => {
+					if (o.isMesh) {
+						let mat = new THREE.MeshPhysicalMaterial({ reflectivity: 0.5, roughness: 0.5, map: o.material.map,envMap:scene.background });
+						o.material = mat;
+					}
+				})
+				console.log(gltf);
+				render();
+
+			},
+			// called while loading is progressing
+			function (gltf) {
+
+				console.log((gltf.loaded / gltf.total * 100) + '% loaded');
+
+			},
+			// called when loading has errors
+			function (error) {
+
+				console.log('An error happened' + error);
+
 			}
+		);
 
-			// default: gold
-			var cspec = {
-				red: 1.0,
-				green: 0.71,
-				blue: 0.29,
-				roughness: 0.54
+
+		function init() {
+
+			renderer.gammaInput = true;
+			renderer.gammaOutput = true;
+			render.gammaFactor = 2.2;
+			renderer.setClearColor(0xf0f0f0);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+
+			camera.position.set(0, 150, 150);
+			camera.lookAt(new THREE.Vector3(0, 0, 0));
+			scene.add(camera);
+
+			document.body.appendChild(renderer.domElement);
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			controls.addEventListener('change', render);
+			controls.minDistance = 1;
+			controls.maxDistance = 10000;
+			//controls.maxPolarAngle = Math.PI / 2;
+			controls.enablePan = false;
+			controls.target.copy(new THREE.Vector3(0, 0, 0));
+			controls.update();
+
+			window.addEventListener('resize', onResize, false);
+
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.body.appendChild(stats.domElement);
+
+		}
+
+		function onResize() {
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			camera.aspect = (window.innerWidth / window.innerHeight);
+			camera.updateProjectionMatrix();
+
+		}
+
+		function update() {
+			requestAnimationFrame(update);
+			stats.update();
+		}
+
+		function render() {
+			updateUniforms();
+			renderer.render(scene, camera);
+
+		}
+
+		function clearGui() {
+
+			if (gui) gui.destroy();
+			gui = new dat.GUI();
+			gui.open();
+
+		}
+
+		function buildGui() {
+
+			clearGui();
+			lightSettings = gui.addFolder('Light Parameters');
+			lightSettings.add(lightParameters, 'red').min(0).max(1).onChange(function (newVal) { render() });
+			lightSettings.add(lightParameters, 'green').min(0).max(1).onChange(function (newVal) { render() });
+			lightSettings.add(lightParameters, 'blue').min(0).max(1).onChange(function (newVal) { render() });
+			lightSettings.add(lightParameters, 'intensity').min(0).max(10000).onChange(function (newVal) { render() });
+
+			materialSettings = gui.addFolder('material settings');
+			materialSettings.add(cspec, 'red').min(0).max(1).onChange(function (newVal) { render() });
+			materialSettings.add(cspec, 'green').min(0).max(1).onChange(function (newVal) { render() });
+			materialSettings.add(cspec, 'blue').min(0).max(1).onChange(function (newVal) { render() });
+			materialSettings.add(cspec, 'roughness').min(0).max(1).onChange(function (newVal) { render() });
+		}
+
+		function updateUniforms() {
+
+			uniforms.cspec.value = new THREE.Vector3(cspec.red, cspec.green, cspec.blue);
+			uniforms.roughness.value = cspec.roughness > 0.0 ? cspec.roughness : 0.01;
+			uniforms.clight.value = new THREE.Vector3(
+				lightParameters.red * lightParameters.intensity,
+				lightParameters.green * lightParameters.intensity,
+				lightParameters.blue * lightParameters.intensity);
+
+			if (model) {
+				model.traverse((o) => {
+					if (o.isMesh) {
+						//o.material = shaderMaterial;
+						o.material.roughness = uniforms.roughness.value;
+						//o.material.vertexShader= vs;
+						//o.material.fragmentShader= fs;
+
+						console.log(o.material);
+					} //o.material = shaderMaterial;
+				});
 			}
-
-			var uniforms = {
-						cspec:	{ type: "v3", value: new THREE.Vector3() },
-						roughness: {type: "f", value: 0.5},
-						pointLightPosition:	{ type: "v3", value: spotLight.position },
-						clight:	{ type: "v3", value: new THREE.Vector3() },
-					};
-
-			vs = document.getElementById("vertex").textContent;
-			fs = document.getElementById("fragment").textContent;
-
-
-			var loader = new THREE.CubeTextureLoader();
-				loader.setPath( 'textures/Yokohama3/' );
-
-			var textureCube = loader.load( urls=[
-					'posx.jpg', 'negx.jpg',
-					'posy.jpg', 'negy.jpg',
-					'posz.jpg', 'negz.jpg'
-				], onLoad=render );
-
-			//scene.background = textureCube;
-			textureCube.minFilter = THREE.LinearMipMapLinearFilter;
-
-			// Instantiate a loader
-			var loader = new THREE.GLTFLoader();
-
-			// Optional: Provide a DRACOLoader instance to decode compressed mesh data
-			var dracoLoader = new THREE.DRACOLoader();
-			dracoLoader.setDecoderPath( 'libs/draco/' );
-			loader.setDRACOLoader( dracoLoader );
-			var model;
-			var shaderMaterial = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: vs, fragmentShader: fs });
-
-				// Load a glTF resource
-				loader.load(
-				// resource URL
-				'models/hulk_buster_iron_man/scene.gltf',
-				// called when the resource is loaded
-				function ( gltf ) {
-
-
-					model = gltf.scene;
-
-					scene.add( model );
-					gltf.animations; // Array<THREE.AnimationClip>
-					gltf.scene; // THREE.Group
-					gltf.scene.autoUpdate=false;
-					gltf.scenes; // Array<THREE.Group>
-					gltf.cameras; // Array<THREE.Camera>
-					gltf.asset; // Object
-					spotLight.target = gltf.scene;
-					model.traverse((o)=>{
-						if(o.isMesh){
-							let mat = new THREE.MeshPhysicalMaterial({reflectivity:0.5,roughness:0.5,map:o.material.map});
-							o.material = mat;
-						}
-					})
-					console.log(gltf);
-					render();
-
-				},
-				// called while loading is progressing
-				function ( gltf ) {
-
-					console.log( ( gltf.loaded / gltf.total * 100 ) + '% loaded' );
-
-				},
-				// called when loading has errors
-				function ( error ) {
-
-					console.log( 'An error happened' +error);
-
-				}
-	);
-
-
-  		function init() {
-
-  			renderer.gammaInput = true;
-  			renderer.gammaOutput = true;
-				render.gammaFactor = 2.2;
-  			renderer.setClearColor( 0xf0f0f0 );
-				renderer.outputEncoding = THREE.sRGBEncoding;
-
-  			camera.position.set( 0, 150, 150 );
-        camera.lookAt( new THREE.Vector3(0,0,0));
-  			scene.add( camera );
-
-  			document.body.appendChild( renderer.domElement );
-  			renderer.setPixelRatio( window.devicePixelRatio );
-  			renderer.setSize( window.innerWidth, window.innerHeight );
-
-  			controls.addEventListener( 'change', render );
-  			controls.minDistance = 1;
-  			controls.maxDistance = 10000;
-  			//controls.maxPolarAngle = Math.PI / 2;
-  			controls.enablePan = false;
-  			controls.target.copy(new THREE.Vector3(0,0,0));
-  			controls.update();
-
-  			window.addEventListener( 'resize', onResize, false );
-
-        stats.domElement.style.position = 'absolute';
-  			stats.domElement.style.top = '0px';
-  			document.body.appendChild( stats.domElement );
-
-  		}
-
-  		function onResize() {
-
-  			renderer.setSize( window.innerWidth, window.innerHeight );
-  			camera.aspect = ( window.innerWidth / window.innerHeight );
-  			camera.updateProjectionMatrix();
-
-  		}
-
-  		function update() {
-  			requestAnimationFrame( update );
-  			stats.update();
-  		}
-
-  		function render() {
-				updateUniforms();
-  			renderer.render( scene, camera );
-
-  		}
-
-  		function clearGui() {
-
-  			if ( gui ) gui.destroy();
-  			gui = new dat.GUI();
-  			gui.open();
-
-  		}
-
-			function buildGui() {
-
-				clearGui();
-				lightSettings = gui.addFolder('Light Parameters');
-				lightSettings.add(lightParameters,'red').min(0).max(1).onChange( function(newVal) { render() });
-				lightSettings.add(lightParameters,'green').min(0).max(1).onChange( function(newVal) { render() });
-				lightSettings.add(lightParameters,'blue').min(0).max(1).onChange( function(newVal) { render() });
-				lightSettings.add(lightParameters,'intensity').min(0).max(10000).onChange( function(newVal) { render() });
-
-				materialSettings = gui.addFolder('material settings');
-				materialSettings.add(cspec,'red').min(0).max(1).onChange( function(newVal) { render() });
-				materialSettings.add(cspec,'green').min(0).max(1).onChange( function(newVal) { render() });
-				materialSettings.add(cspec,'blue').min(0).max(1).onChange( function(newVal) { render() });
-				materialSettings.add(cspec,'roughness').min(0).max(1).onChange( function(newVal) { render() });
-			}
-
-			function updateUniforms() {
-
-					uniforms.cspec.value = new THREE.Vector3(cspec.red,cspec.green,cspec.blue);
-					uniforms.roughness.value = cspec.roughness>0.0?cspec.roughness:0.01;
-					uniforms.clight.value = new THREE.Vector3(
-							lightParameters.red * lightParameters.intensity,
-					    lightParameters.green * lightParameters.intensity,
-							lightParameters.blue * lightParameters.intensity);
-
-							if(model){
-								model.traverse((o) => {
-								if (o.isMesh) {
-									//o.material = shaderMaterial;
-									o.material.roughness = uniforms.roughness.value;
-									//o.material.vertexShader= vs;
-									//o.material.fragmentShader= fs;
-
-									console.log(o.material);
-								} //o.material = shaderMaterial;
-							});
-						}
-			}
+		}
 
 
 
-      init();
-			buildGui();
-  		update();
-			render();
+		init();
+		buildGui();
+		update();
+		render();
       //setInterval(function(){render(); }, 2000);
-		</script>
-	</body>
+	</script>
+</body>
+
 </html>

@@ -1,16 +1,33 @@
+
 class CanvasHandler{
+    /**
+     * @type {Scene}
+     */
     scene;
+    /**
+     * @type {Camera}
+     */
     camera;
+    /**
+     * @type {WebGLRenderer}
+     */
     renderer;
+    /**
+     * @type {HTMLElement}
+     */
     canvasElement;
-    drawCallBack;
+    /**
+     * @type {()=>void} update function
+     */
+    update;
     /**
      * 
-     * @param {string} id id of element to use as canvas 
+     * @param {string} selector id of element to use as canvas 
      */
-    constructor(id){
+    constructor(selector){
         console.log("ctor canvas");
-        this.setup(id);
+        this.setup(selector);
+        window.addEventListener('resize',this.resize,false);
     }
     /**
      * 
@@ -30,7 +47,7 @@ class CanvasHandler{
     bindCanvasElement(elementId){
         if(elementId){
             console.log(elementId);
-            this.canvasElement = document.getElementById(elementId);
+            this.canvasElement = document.querySelector(elementId);
             console.log(this.canvasElement);
             if(!this.canvasElement){
                 return false;
@@ -48,9 +65,15 @@ class CanvasHandler{
     }
     createRenderer(){
         this.renderer = new THREE.WebGLRenderer({antialias:true});
+
+        (this.renderer).setSize((this.canvasElement).clientWidth,(this.canvasElement).clientHeight)
     }
     renderLoop(){
-        requestAnimationFrame(this.renderLoop);
+        requestAnimationFrame(this.renderLoop.bind(this));
+        this.update();
         this.renderer.render(this.scene,this.camera);
+    }
+    resize(){
+        // TODO Resize function
     }
 }
