@@ -16,7 +16,7 @@ let cubeMap = new THREE.CubeTextureLoader().setPath('textures/Yokohama3/').load(
 ]);
 let light = new THREE.PointLight(new THREE.Color(1, 1, 1), 2, 5, 2);
 let light2 = new THREE.PointLight(new THREE.Color(1, 0, 1), 2, 5, 2);
-let cube = new THREE.SphereGeometry(1, 10, 10);
+let cube = new THREE.SphereGeometry(1, 100, 100);
 let mat, mesh;
 
 // Setup Scene
