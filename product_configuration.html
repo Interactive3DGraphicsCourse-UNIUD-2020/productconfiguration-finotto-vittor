@@ -48,6 +48,8 @@
 
 
 		<script>
+			var shaders_materials = {};
+			var shaders_names = ["Basic", "Glass", "Microfacet", "PBR", "Phong"];
 			var oldObject;
 			var scene = new THREE.Scene();
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
@@ -82,9 +84,40 @@
         product: "Sphere"
 			};
 
-			var uniforms = {
-            materialColor: {type: "v3", value: new THREE.Vector3() },
-					};
+			var light1Parameters = {
+				red: 1.0,
+				green: 1.0,
+				blue: 1.0,
+				intensity: 1.5,
+			}
+
+			var light2Parameters = {
+				red: 1.0,
+				green: 1.0,
+				blue: 1.0,
+				intensity: 1.5,
+			}
+
+
+			var base_uniforms = {
+				light: {
+					type: "Light",
+					value: [
+						{
+							position:{type:"vec3", value: spotLight.position},
+							color:{type:"vec3", value: new THREE.Vector3(1,1,1)},
+							intensity:{type:"f", value: 1.5}
+						},
+						{
+							position:{type:"vec3", value: spotLight.position},
+							color:{type:"vec3", value: new THREE.Vector3(1,1,1)},
+							intensity:{type:"f", value: 1.5}
+						},
+					]
+				},
+				roughness: {type:"f", value:0.54},
+				metalness: {type:"f", value:0.27},
+			}
 
       var box = new THREE.Box3(
         new THREE.Vector3(-50,-50,-50),
@@ -93,7 +126,7 @@
 
       var sizeB = box.getSize();
 
-			var sphereMaterial = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: vs, fragmentShader: fs });
+			var sphereMaterial = new THREE.ShaderMaterial({ uniforms: base_uniforms, vertexShader: vs, fragmentShader: fs });
 
 			sphere = new THREE.Mesh(
 				new THREE.SphereGeometry( 10, 32, 16 ),
@@ -178,10 +211,40 @@
   		}
 
   		function render() {
-  			updateUniforms();
   			renderer.render( scene, camera );
 
   		}
+
+			function updateLightUniforms(){
+				/*for(var p of Object.keys(all_materials)){
+					console.log(p);
+						for(var m of Object.entries(all_materials[p])){
+							console.log(m[1]);
+							m.uniforms.light[0].intensity = light1Parameters.intensity;
+							m.uniforms.light[0].color = new THREE.Vector3(
+								light1Parameters.red,
+								light1Parameters.green,
+								light1Parameters.blu);
+						m.uniforms.light[0].intensity = light2Parameters.intensity;
+						m.uniforms.light[1].color = new THREE.Vector3(
+								light2Parameters.red,
+								light2Parameters.green,
+								light2Parameters.blu);
+						}*/
+					for(var m of Object.entries(shaders_materials)){
+						console.log(m[1].uniforms.light.value[0]);
+						m[1].uniforms.light.value[0].intensity = light1Parameters.intensity;
+						m[1].uniforms.light.value[0].color = new THREE.Vector3(
+							light1Parameters.red,
+							light1Parameters.green,
+							light1Parameters.blu);
+						m[1].uniforms.light.value[0].intensity = light2Parameters.intensity;
+						m[1].uniforms.light.value[1].color = new THREE.Vector3(
+							light2Parameters.red,
+							light2Parameters.green,
+							light2Parameters.blu);
+						}
+			}
 
   		function clearGui() {
 
@@ -226,33 +289,128 @@
 							oldObject = child;
 							var product_materials = all_materials["Arc_Reactor"];
           }
+					render();
 				}
 				updateGuiMaterials(product_materials);
+
 				render();
         });
+				lights=gui.addFolder('Lights');
+				var light1 = lights.addFolder("Light 1");
+				light1.add(light1Parameters,'red').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				 });
+				light1.add(light1Parameters,'green').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				 });
+				light1.add(light1Parameters,'blue').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				});
+				light1.add(light1Parameters,'intensity').min(0).max(10).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				 });
+				var light2 = lights.addFolder("Light 2");
+				light2.add(light2Parameters,'red').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				});
+				light2.add(light2Parameters,'green').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+			 });
+				light2.add(light2Parameters,'blue').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				  });
+				light2.add(light2Parameters,'intensity').min(0).max(10).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+			 });
         materials=gui.addFolder('Materials');
+
+
   		}
 
 			function updateGuiMaterials(productMaterials){
-				product_materials = {};
+				//product_material = {};
+				//console.log(productMaterials);
 				var folder = gui.__folders["Materials"];
 				folder.close();
 				gui.__ul.removeChild(folder.domElement.parentNode);
 				delete gui.__folders["Materials"];
 				materials=gui.addFolder('Materials');
-				var idx = 1;
+				//console.log(productMaterials);
+				//var p_materials = {};
+				var mats = [];
 				for(var material in productMaterials){
-					product_materials[material]=material;
+
+					var p_material={
+						"type": material,
+						"roughness": 0.54,
+						"metalness": 0.54,
+					};
+
+					//product_materials["material"]=material;
 					//console.log(product_materials);
-					materials.add(product_materials, material).onChange( function(newVal) { render() });
+					var all_s = [];
+					shaders_names.forEach(function (item, index, array) {
+						all_s.push(item);
+					});
+					//all_names = shaders_names;
+					all_s.push(material);
+					var m = materials.addFolder("Material "+material);
+					//shaders_materials[material]=material;
+					m.add(p_material, "type", all_s).onChange(
+						function(newVal) {
+							var initialValue = this.initialValue;
+							oldObject.traverse((o)=>{
+									if(o.isMesh){
+										if(o.material.name==initialValue){
+											if(shaders_materials[newVal]){
+												o.material=shaders_materials[newVal];
+											} else {
+												o.material=all_materials[oldObject.name][newVal];
+											}
+
+											this.initialValue = o.material.name;
+											//console.log(o.material);
+										}
+									}
+								});
+							render()
+						});
+					m.add(p_material,'roughness').min(0).max(1).onChange( function(newVal) {
+						var initialValue = this.initialValue;
+						oldObject.traverse((o)=>{
+								if(o.isMesh){
+									if(o.material.name==initialValue){
+										o.material.uniforms.roughness.value=newVal;
+										//console.log(o.material);
+									}
+								}
+							});
+						render()
+					});
+					m.add(p_material,'metalness').min(0).max(1).onChange( function(newVal) {
+						var initialValue = this.initialValue;
+						oldObject.traverse((o)=>{
+								if(o.isMesh){
+									if(o.material.name==initialValue){
+										o.material.uniforms.metalness.value=newVal;
+										//console.log(o.material);
+									}
+								}
+							});
+						render()
+					});
 				}
 			}
 
-  		function updateUniforms() {
 
-
-
-  		}
 
 
 			function load_objects(){
@@ -298,6 +456,7 @@
 					//spotLight.target = gltf.scene;
 					model.traverse((o)=>{
 						if(o.isMesh){
+							//o.material.uniforms=base_uniforms;
 							all_materials[name] = {material: o.material};
 						}
 					})
@@ -332,8 +491,12 @@
 			function obj_loader(url, name, mtl_url){
 				var mtlLoader = new THREE.MTLLoader();
 				mtlLoader.load( mtl_url, function( materials ) {
-					all_materials[name]=materials.materials;
+
 					materials.preload();
+					/*for(var m of Object.keys(materials.materials)){
+						m.uniforms=base_uniforms;
+					}*/
+					all_materials[name]=materials.materials;
 					var objLoader = new THREE.OBJLoader();
 					objLoader.setMaterials( materials );
 					objLoader.load( url, function ( object ) {
@@ -399,10 +562,35 @@
 
       }
 
+			// This is a basic asyncronous shader loader for THREE.js.
+			function shadersLoader(vertex_url, fragment_url, m_name) {
+				var loader = new THREE.FileLoader();
+				var material = new THREE.ShaderMaterial( {name:m_name, uniforms:base_uniforms});
+				loader.load(vertex_url,function ( data ) {
+					var vertex =  data;
+					material.vertex = vertex;
+				},);
+				loader.load(fragment_url,function ( data ) {
+						var fragment =  data;
+						material.fragment = fragment;
+				},);
+				shaders_materials[m_name]=material;
+				//all_materials[m_name] = material;
+
+			}
+
+			function load_shaders(){
+				for(var name of shaders_names){
+					var v_url = "shaders/"+name+"Shader.vert";
+					var f_url = "shaders/"+name+"Shader.frag";
+					shadersLoader(v_url, f_url, name);
+				}
+			}
 
       init();
   		buildGui();
 			load_objects();
+			load_shaders();
   		update();
 			render();
 		</script>
