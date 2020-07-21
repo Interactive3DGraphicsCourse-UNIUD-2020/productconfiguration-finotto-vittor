@@ -29,8 +29,7 @@ void main(){
     vec3 worldPos = vec3(vModelViewMatrix * vec4(vPosition,1.0));
     vec3 worldNorm = vec3(vModelViewMatrix * vec4(vNormal,0.0));
     vec3 worldView = normalize(cameraPosition-worldPos);
-    vec3 ReflectDir =normalize(reflect(-worldView,worldNorm));// inverseTransformDir(vNormal,viewMatrix)*vec3(-1,1,1);
+    vec3 ReflectDir =normalize(reflect(-worldView,worldNorm));
     vec3 RefractDir =normalize(refract(-worldView,worldNorm,eta));
     gl_FragColor=mix(textureCube(envMap,vec3(RefractDir.x,-RefractDir.y,RefractDir.z)),textureCube(envMap,ReflectDir),reflection);
 }
-//textureCube(envMap,vec3(RefractDir.x,-RefractDir.y,RefractDir.z));
