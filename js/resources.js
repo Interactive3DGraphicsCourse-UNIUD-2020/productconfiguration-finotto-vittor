@@ -60,4 +60,6 @@ class Resources{
 
 
   static MatGoldAlbedo = ()=>{return Resources._Texture()+"gold/gold-color.jpg"}
+  static MatGoldNormal = ()=>{return Resources._Texture()+"gold/gold-normalmap.jpg"}
+
 }

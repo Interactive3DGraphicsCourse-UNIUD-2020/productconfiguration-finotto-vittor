@@ -9,7 +9,7 @@ struct Light{
 uniform Light light[MAX_LIGHTS];
 uniform float metalness;
 uniform float roughness;
-uniform vec4 color;
+//uniform vec4 color;
 
 uniform sampler2D map;
 
