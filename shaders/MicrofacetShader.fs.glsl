@@ -62,7 +62,7 @@ vec3 microfacet(Light light){
                 (4.0 * ndotl * ndotv);
     vec3 minDiffuse = vec3(0.0); // metallic
     vec3 diffuse = mix(color.xyz,minDiffuse.xyz,metalness); // lerp between metal and non metal
-    vec3 result = (PI * spec * light.color *ndotl);
+    vec3 result = (PI * spec * (light.color * light.intensity) *ndotl);
     return result;
 }
 

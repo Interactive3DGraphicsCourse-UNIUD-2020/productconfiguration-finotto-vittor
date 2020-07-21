@@ -29,12 +29,12 @@ canvas.scene.add(light2);
  * This bad code needed to be sure that all needed Shaders are loaded before creating material
  * could be improved
  */
-ResourceManager.loadResource(Resources.MicrofacetVertexShader(), (res) => {
+ResourceManager.loadResource(Resources.GlassVertexShader(), (res) => {
     /**
      * Veretex shader loaded
      */
     let vs1 = res.responseText;
-    ResourceManager.loadResource(Resources.MicrofacetFragmentShader(), (res) => {
+    ResourceManager.loadResource(Resources.GlassFragmentShader(), (res) => {
         /**
          * Fragment shader Loaded
          */
@@ -47,11 +47,30 @@ ResourceManager.loadResource(Resources.MicrofacetVertexShader(), (res) => {
              */
             // code here 
             //mat = new THREE.MeshBasicMaterial({map:texture});
+            // Microfacet Setup
+
+            // mat = new THREE.ShaderMaterial({
+            //     uniforms: {
+            //         roughness: { value: 0.5 },
+            //         metalness:{value: 1},
+            //         map: {value: texture},
+            //         light: {
+            //             value: [
+            //                 { position: light.position, color: light.color, intensity: light.intensity },
+            //                 { position: light2.position, color: light2.color, intensity: light2.intensity }
+            //             ]
+            //         }
+            //     },
+            //     vertexShader: vs1,
+            //     fragmentShader: fs1
+            // });
+            // Glass Setup
             mat = new THREE.ShaderMaterial({
                 uniforms: {
-                    roughness: { value: 0.5 },
-                    metalness:{value: 1},
+                    reflection:{value:0.1},
+                    eta:{value:0.5},
                     map: {value: texture},
+                    envMap:{value:cubeMap},
                     light: {
                         value: [
                             { position: light.position, color: light.color, intensity: light.intensity },

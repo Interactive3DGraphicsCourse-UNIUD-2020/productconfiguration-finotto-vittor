@@ -19,6 +19,7 @@ class Resources{
    */
   static BasicFragmentShader = ()=>{return Resources._Shader()+Resources._FragShaderName("BasicShader")}
 
+
     /**
    * Phong Shader Vertex Path
    */
@@ -27,23 +28,36 @@ class Resources{
    * Phong Shader Fragment Path
    */
   static PhongFragmentShader = ()=>{return Resources._Shader()+Resources._FragShaderName("PhongShader")}
+
     /**
-   * Basic Shader Vertex Path
+   * PBR Shader Vertex Path
    */
   static PBRVertexShader = ()=>{return Resources._Shader()+Resources._VertShaderName("PBRShader")}
-    /**
+      /**
    * PBR Shader Fragment Path
+   */
+  static PBRFragmentShader = ()=>{return Resources._Shader()+Resources._FragShaderName("PBRShader")}
+
+    /**
+   * Microfacet Shader Fragment Path
    */
   static MicrofacetFragmentShader = ()=>{return Resources._Shader()+Resources._FragShaderName("MicrofacetShader")}
 
     /**
-   * Basic Shader Vertex Path
+   * Microfacet Shader Vertex Path
    */
   static MicrofacetVertexShader = ()=>{return Resources._Shader()+Resources._VertShaderName("MicrofacetShader")}
-    /**
-   * PBR Shader Fragment Path
+
+      /**
+   * Glass Shader Fragment Path
    */
-  static PBRFragmentShader = ()=>{return Resources._Shader()+Resources._FragShaderName("PBRShader")}
+  static GlassFragmentShader = ()=>{return Resources._Shader()+Resources._FragShaderName("GlassShader")}
+
+    /**
+   * Glass Shader Vertex Path
+   */
+  static GlassVertexShader = ()=>{return Resources._Shader()+Resources._VertShaderName("GlassShader")}
+
 
   static MatGoldAlbedo = ()=>{return Resources._Texture()+"gold/gold-color.jpg"}
 }
