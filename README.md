@@ -35,3 +35,5 @@ Oltre a cercare di creare di realizzare degli shaders soddisfacenti dal punto di
 
 ## Ottimizzazione
 La ricerca dell'efficenza del codice è stata ricercata nell'utilizzo di chiamate asincrone per il caricamento dei modelli.
+
+![iron-glass](/re-img/glass.PNG)
