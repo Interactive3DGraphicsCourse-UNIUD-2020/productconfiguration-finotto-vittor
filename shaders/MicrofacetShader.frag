@@ -67,7 +67,7 @@ vec3 microfacet(Light light){
 }
 
 void main(){
-    tColor = texture2D(map,vUV);
+    tColor = normalize(texture2D(map,vUV)+color);
     vec3 result= vec3(0.0);
     for(int i =0;i<MAX_LIGHTS;i++){
         result=result+microfacet(light[i]);
