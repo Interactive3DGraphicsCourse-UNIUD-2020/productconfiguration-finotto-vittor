@@ -1,5 +1,5 @@
 // vertex
-
+attribute vec3 color;
 varying vec3 vNormal;
 varying mat4 vModelViewMatrix;
 varying vec3 vPosition;

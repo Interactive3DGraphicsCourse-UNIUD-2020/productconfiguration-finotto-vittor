@@ -249,28 +249,27 @@
 
 			function updateLightUniforms(){
 				// update unoforms of lights for all shaders materials
-					for(var m of Object.entries(shaders_materials)){
-						m[1].uniforms.light.value[0].intensity = light1Parameters.intensity;
-						m[1].uniforms.light.value[0].color = new THREE.Vector3(
+						base_uniforms.light.value[0].intensity = light1Parameters.intensity;
+						base_uniforms.light.value[0].color = new THREE.Vector3(
 							light1Parameters.red,
 							light1Parameters.green,
 							light1Parameters.blue);
-						m[1].uniforms.light.value[1].intensity = light2Parameters.intensity;
-						m[1].uniforms.light.value[1].color = new THREE.Vector3(
+						base_uniforms.light.value[1].intensity = light2Parameters.intensity;
+						base_uniforms.light.value[1].color = new THREE.Vector3(
 							light2Parameters.red,
 							light2Parameters.green,
 							light2Parameters.blue);
-						m[1].uniforms.light.value[2].intensity = light3Parameters.intensity;
-						m[1].uniforms.light.value[2].color = new THREE.Vector3(
+						base_uniforms.light.value[2].intensity = light3Parameters.intensity;
+						base_uniforms.light.value[2].color = new THREE.Vector3(
 							light3Parameters.red,
 							light3Parameters.green,
 							light3Parameters.blue);
-							m[1].uniforms.light.value[3].intensity = light4Parameters.intensity;
-						m[1].uniforms.light.value[3].color = new THREE.Vector3(
+						base_uniforms.light.value[3].intensity = light4Parameters.intensity;
+						base_uniforms.light.value[3].color = new THREE.Vector3(
 							light4Parameters.red,
 							light4Parameters.green,
 							light4Parameters.blue);
-						}
+
 						light1.color=new THREE.Color(
 							light1Parameters.red,
 							light1Parameters.green,
@@ -314,36 +313,34 @@
           	if(newVal=="IronMan-Helmet-1" && child.name=="IronMan_Helmet_1"){
 							child.visible = true;
 							oldObject = child;
-							for(var m of Object.entries(shaders_materials)){
-								m[1].uniforms.useMap.value = false;
-							}
+							base_uniforms.useMap.value = false;
 							var product_materials = all_materials["IronMan_Helmet_1"];
           	} else if(newVal=="IronMan-Helmet-2" && child.name=="IronMan_Helmet_2"){
 							child.visible = true;
-							for(var m of Object.entries(shaders_materials)){
-								m[1].uniforms.useMap.value = false;
-							}
+							base_uniforms.useMap.value = false;
 							oldObject = child;
 							var product_materials = all_materials["IronMan_Helmet_2"];
           	} else if(newVal=="Hulk-Buster-IronMan" && child.name=="Hulk_Buster_IronMan"){
 							child.visible = true;
-							for(var m of Object.entries(shaders_materials)){
-								m[1].uniforms.useMap.value = true;
-							}
+							base_uniforms.useMap.value = true;
 							oldObject = child;
+							oldObject.traverse((o)=>{
+									if(o.isMesh){
+										base_uniforms.map.value=o.material.map;
+									}});
 							var product_materials = all_materials["Hulk_Buster_IronMan"];
           	} else if(newVal=="IronMan-Mark42" && child.name=="IronMan_Mark42"){
 							child.visible = true;
-							for(var m of Object.entries(shaders_materials)){
-								m[1].uniforms.useMap.value = true;
-							}
+							base_uniforms.useMap.value = true;
 							oldObject = child;
+							oldObject.traverse((o)=>{
+									if(o.isMesh){
+										base_uniforms.map.value=o.material.map;
+									}});
 							var product_materials = all_materials["IronMan_Mark42"];
           	} else if(newVal=="Arc-Reactor" && child.name=="Arc_Reactor"){
 							child.visible = true;
-							for(var m of Object.entries(shaders_materials)){
-								m[1].uniforms.useMap.value = false;
-							}
+							base_uniforms.useMap.value = false;
 							oldObject = child;
 							var product_materials = all_materials["Arc_Reactor"];
           }
@@ -428,14 +425,12 @@
 				// params for all glass material in teh scene
 				var glassParams=gui.addFolder("Glass Parameters");
 				glassParams.add(p_material,"reflection").min(0).max(1).onChange(function(newVal){
-					for(var m of Object.entries(shaders_materials)){
-						m[1].uniforms.reflection.value = newVal;
-					}
+					base_uniforms.reflection.value = newVal;
 					render();
 				});
 				glassParams.add(p_material,"eta").min(0).max(3).onChange(function(newVal){
 					for(var m of Object.entries(shaders_materials)){
-						m[1].uniforms.eta.value = newVal;
+						base_uniforms.eta.value = newVal;
 					}
 					render();
 				});
@@ -443,30 +438,22 @@
 				// params for all pbr material in teh scene
 				var pbrParams= gui.addFolder("PBR Parameters");
 				pbrParams.add(p_material,"metalnessP").min(0).max(1).onChange(function(newVal){
-					for(var m of Object.entries(shaders_materials)){
-						m[1].uniforms.metalnessP.value = newVal;
-					}
+					base_uniforms.metalnessP.value = newVal;
 					render();
 				});
 				pbrParams.add(p_material,"roughnessP").min(0).max(1).onChange(function(newVal){
-					for(var m of Object.entries(shaders_materials)){
-						m[1].uniforms.roughnessP.value = newVal;
-					}
+					base_uniforms.roughnessP.value = newVal;
 					render();
 				});
 
 				// params for all microfaced material in teh scene
 				var microfacedParams= gui.addFolder("Microfaced Parameters");
 				microfacedParams.add(p_material,"metalnessM").min(0).max(1).onChange(function(newVal){
-					for(var m of Object.entries(shaders_materials)){
-						m[1].uniforms.metalnessM.value = newVal;
-					}
+					base_uniforms.metalnessM.value = newVal;
 					render();
 				});
 				microfacedParams.add(p_material,"roughnessM").min(0).max(1).onChange(function(newVal){
-					for(var m of Object.entries(shaders_materials)){
-						m[1].uniforms.roughnessM.value = newVal;
-					}
+					base_uniforms.roughnessM.value = newVal;
 					render();
 				});
 
@@ -503,44 +490,35 @@
 									if(o.isMesh){
 										if(o.material.initialValue==initialValue){
 											if(shaders_materials[newVal]){
-												if(o.material.map){
-													var map = o.material.map;
-												} else if(o.material.uniforms && o.material.uniforms.map){
-													var map = o.material.uniforms.map.value;
-												}
 												var newMaterial = generate_material(shaders_materials[newVal]);
 												newMaterial.initialValue=initialValue;
-
 												o.material=newMaterial;
-
-												if(map){
-
-													o.material.uniforms.map.value=map;
-												}
 											} else {
 												o.material=all_materials[oldObject.name][newVal];
-												m.add(p_material,'roughness').min(0).max(1).onChange( function(newVal) {
-													var initialValue = this.object.type;
-													oldObject.traverse((o)=>{
-															if(o.isMesh){
-																if(o.material.name==initialValue){
-																	o.material.roughness = newVal;
+												if(oldObject.type=="Scene"){
+													m.add(p_material,'roughness').min(0).max(1).onChange( function(newVal) {
+														var initialValue = this.object.type;
+														oldObject.traverse((o)=>{
+																if(o.isMesh){
+																	if(o.material.name==initialValue){
+																		o.material.roughness = newVal;
+																	}
 																}
-															}
-														});
-													render()
-												});
-												m.add(p_material,'metalness').min(0).max(1).onChange( function(newVal) {
-													var initialValue = this.object.type;
-													oldObject.traverse((o)=>{
-															if(o.isMesh){
-																if(o.material.name==initialValue){
-																	o.material.metalness = newVal;
+															});
+														render()
+													});
+													m.add(p_material,'metalness').min(0).max(1).onChange( function(newVal) {
+														var initialValue = this.object.type;
+														oldObject.traverse((o)=>{
+																if(o.isMesh){
+																	if(o.material.name==initialValue){
+																		o.material.metalness = newVal;
+																	}
 																}
-															}
+															});
+															render()
 														});
-											render()
-										});
+													}
 											}
 
 										}
@@ -684,7 +662,7 @@
 								if(o.isMesh && !o.material.map){
 									let geo = o.geometry;
 									let leng = geo.attributes.position.count;
-									let colors = new Float32Array(leng);
+									let colors = new Float32Array(leng*3);
 									for(let i=0;i<leng-3;i+=3){
 										colors[i]=o.material.color.r;
 										colors[i+1]=o.material.color.g;
