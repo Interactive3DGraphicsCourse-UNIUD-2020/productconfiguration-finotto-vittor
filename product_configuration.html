@@ -86,39 +86,6 @@
 
       controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-			/*var spotLight = new THREE.SpotLight( 0xffffff );
-			spotLight
-			spotLight.position.set( 0, 2, 0 );
-			spotLight.intensity = 1;
-			spotLight.castShadow = true;
-
-			spotLight.shadow.mapSize.width = 1024;
-			spotLight.shadow.mapSize.height = 1024;
-
-			spotLight.shadow.camera.near = 500;
-			spotLight.shadow.camera.far = 4000;
-			spotLight.shadow.camera.fov = 30;
-
-			scene.add( spotLight );
-
-
-			var spotLight1 = new THREE.SpotLight( 0xffffff );
-			spotLight1.position.set( 2,0, 0 );
-			spotLight1.intensity = 1;
-			spotLight1.castShadow = true;
-
-			spotLight1.shadow.mapSize.width = 1024;
-			spotLight1.shadow.mapSize.height = 1024;
-
-			spotLight1.shadow.camera.near = 500;
-			spotLight1.shadow.camera.far = 4000;
-			spotLight1.shadow.camera.fov = 30;
-
-			scene.add( spotLight1 );*/
-
-
-
-      // default: red plastic
 			var product_materials = {};
 
       var product = {
@@ -216,7 +183,7 @@
       var gui;
   		var stats = new Stats();
 
-
+			// environment map loader
 			var loader = new THREE.CubeTextureLoader();
 				loader.setPath( 'textures/Yokohama3/' );
 
@@ -226,7 +193,6 @@
 					'posz.jpg', 'negz.jpg'
 				], onLoad=env_map_loaded );
 
-			//textureCube.onload = function(){render();};
 			scene.background = textureCube;
 			textureCube.minFilter = THREE.LinearMipMapLinearFilter;
 
@@ -239,8 +205,6 @@
 
   		function init() {
 
-  			//renderer.gammaInput = true;
-  			//renderer.gammaOutput = true;
   			renderer.setClearColor( 0xf0f0f0 );
 
   			camera.position.set( 0, 100, 150 );
@@ -254,9 +218,6 @@
   			controls.addEventListener( 'change', render );
   			controls.minDistance = 1;
   			controls.maxDistance = 10000;
-  			//controls.maxPolarAngle = Math.PI / 2;
-  			//controls.enablePan = false;
-  			//controls.target.copy(new THREE.Vector3(0,0,0));
 				controls.target.copy(container.position);
   			controls.update();
 
@@ -287,21 +248,7 @@
   		}
 
 			function updateLightUniforms(){
-				/*for(var p of Object.keys(all_materials)){
-					console.log(p);
-						for(var m of Object.entries(all_materials[p])){
-							console.log(m[1]);
-							m.uniforms.light[0].intensity = light1Parameters.intensity;
-							m.uniforms.light[0].color = new THREE.Vector3(
-								light1Parameters.red,
-								light1Parameters.green,
-								light1Parameters.blu);
-						m.uniforms.light[0].intensity = light2Parameters.intensity;
-						m.uniforms.light[1].color = new THREE.Vector3(
-								light2Parameters.red,
-								light2Parameters.green,
-								light2Parameters.blu);
-						}*/
+				// update unoforms of lights for all shaders materials
 					for(var m of Object.entries(shaders_materials)){
 						m[1].uniforms.light.value[0].intensity = light1Parameters.intensity;
 						m[1].uniforms.light.value[0].color = new THREE.Vector3(
@@ -406,6 +353,7 @@
 
 				render();
         });
+				// light parameters
 				lights=gui.addFolder('Lights');
 				var light1 = lights.addFolder("Light 1");
 				light1.add(light1Parameters,'red').min(0).max(1).onChange( function(newVal) {
@@ -477,7 +425,7 @@
 				 });
 
 
-
+				// params for all glass material in teh scene
 				var glassParams=gui.addFolder("Glass Parameters");
 				glassParams.add(p_material,"reflection").min(0).max(1).onChange(function(newVal){
 					for(var m of Object.entries(shaders_materials)){
@@ -485,13 +433,14 @@
 					}
 					render();
 				});
-				glassParams.add(p_material,"eta").min(0).max(1).onChange(function(newVal){
+				glassParams.add(p_material,"eta").min(0).max(3).onChange(function(newVal){
 					for(var m of Object.entries(shaders_materials)){
 						m[1].uniforms.eta.value = newVal;
 					}
 					render();
 				});
 
+				// params for all pbr material in teh scene
 				var pbrParams= gui.addFolder("PBR Parameters");
 				pbrParams.add(p_material,"metalnessP").min(0).max(1).onChange(function(newVal){
 					for(var m of Object.entries(shaders_materials)){
@@ -506,6 +455,7 @@
 					render();
 				});
 
+				// params for all microfaced material in teh scene
 				var microfacedParams= gui.addFolder("Microfaced Parameters");
 				microfacedParams.add(p_material,"metalnessM").min(0).max(1).onChange(function(newVal){
 					for(var m of Object.entries(shaders_materials)){
@@ -522,32 +472,24 @@
 
 				materials=gui.addFolder('Materials');
 
-
   		}
 
 			function updateGuiMaterials(productMaterials){
-				//product_material = {};
-				//console.log(productMaterials);
+				// generate gui dinamically for specific model material
 				var folder = gui.__folders["Materials"];
 				folder.close();
 				gui.__ul.removeChild(folder.domElement.parentNode);
 				delete gui.__folders["Materials"];
 
-
 				materials=gui.addFolder('Materials');
-				//console.log(productMaterials);
-				//var p_materials = {};
-
 				for(var material in productMaterials){
 
 					p_material.type=material;
-					//product_materials["material"]=material;
-					//console.log(product_materials);
+
 					var all_s = [];
 					shaders_names.forEach(function (item, index, array) {
 						all_s.push(item);
 					});
-					//all_names = shaders_names;
 					all_s.push(material);
 					var m = materials.addFolder("Material "+material);
 					m.add(p_material, "type", all_s).onChange(
@@ -569,7 +511,6 @@
 												}
 												var newMaterial = generate_material(shaders_materials[newVal]);
 												newMaterial.initialValue=initialValue;
-												//newMaterial.uniforms.color.value=c;
 
 												o.material=newMaterial;
 
@@ -639,6 +580,7 @@
 
 
 			function load_objects(){
+				// load all models ansyncrous
 				objects_url = [
 					["models/ironman_helmet/obj/helmet.obj", "IronMan_Helmet_1", "models/ironman_helmet/obj/helmet.mtl"],
 					["models/30-iron-man-helmet-obj/iron_man_helmet.obj", "IronMan_Helmet_2", "models/30-iron-man-helmet-obj/iron man helmet.mtl"],
@@ -653,6 +595,7 @@
 			}
 
 			function model_loader(url, name, url2){
+				// choose correct loader for .obg and .gltf
 				if(url2==""){
 					gltf_loader(url, name);
 				} else {
@@ -662,13 +605,10 @@
 
 
 			function gltf_loader(url, name){
-				// Instantiate a loader
+				// loader for models .gltf
 				var loader = new THREE.GLTFLoader();
-				// Load a glTF resource
 				loader.load(
-				// resource URL
 				url,
-				// called when the resource is loaded
 				function ( gltf ) {
 					var model = gltf.scene;
 					gltf.animations; // Array<THREE.AnimationClip>
@@ -677,10 +617,8 @@
 					gltf.scenes; // Array<THREE.Group>
 					gltf.cameras; // Array<THREE.Camera>
 					gltf.asset; // Object
-					//spotLight.target = gltf.scene;
 					model.traverse((o)=>{
 						if(o.isMesh){
-							//o.material.uniforms=base_uniforms;
 							o.material.name="material";
 							o.material.initialValue="material";
 							all_materials[name] = {material: o.material};
@@ -715,6 +653,7 @@
 
 
 			function obj_loader(url, name, mtl_url){
+				// loader for models .obj and relative materials in .mtl
 				var mtlLoader = new THREE.MTLLoader();
 				mtlLoader.load( mtl_url, function( materials ) {
 					materials.preload();
@@ -741,7 +680,6 @@
 						container.add(object);
 						object.visible=false;
 						object.name=name;
-						//QUI
 						if(!object.map){
 							object.traverse((o)=>{
 								if(o.isMesh && !o.material.map){
@@ -769,41 +707,7 @@
 				});
 			}
 
-
-			function old_model_loader(url, name){
-        if(url.substring(url.length - 3, url.length)=="obj"){
-          var loader = new THREE.OBJLoader();
-          var gltf = false;
-        } else if(url.substring(url.length - 3, url.length)=="ltf"){
-          var loader = new THREE.GLTFLoader();
-          var gltf = true;
-        }
-        loader.load(url, function(object){
-          if(gltf){object=object.scene;}
-
-          var sizeO = new THREE.Box3().setFromObject(object).getSize();
-          var box = new THREE.Box3(
-            new THREE.Vector3(-50,-50,-50),
-            new THREE.Vector3(50,50,50)
-          );
-          var sizeB = box.getSize();
-          var ratio = sizeB.divide( sizeO );
-
-          object.matrixAutoUpdate=false;
-          var min = ratio.x;
-          if(ratio.y<min) {min=ratio.y;}
-          if(ratio.z<min) {min=ratio.z;}
-          object.matrix.makeScale(min, min, min);
-          container.add(object);
-					object.visible=false;
-					object.name=name;
-					console.log(name+": loaded");
-          //render();
-        });
-
-      }
-
-			// This is a basic asyncronous shader loader for THREE.js.
+			// basic asyncronous shader loader
 			function shadersLoader(vertex_url, fragment_url, m_name) {
 				var loader = new THREE.FileLoader();
 				var material = new THREE.ShaderMaterial({uniforms:base_uniforms});
@@ -816,11 +720,11 @@
 						material.fragmentShader = fragment;
 				},);
 				shaders_materials[m_name]=material;
-				//all_materials[m_name] = material;
 
 			}
 
 			function load_shaders(){
+				// load all shaders asyncronous
 				for(var name of shaders_names){
 					var v_url = "shaders/"+name+"Shader.vert";
 					var f_url = "shaders/"+name+"Shader.frag";
@@ -836,7 +740,7 @@
 			render();
 
 			function generate_material(material, color){
-
+				// create new shader material from another with same values
 				var newMat = new THREE.ShaderMaterial();
 				newMat.name=material.name+" "+newMat.uuid;
 				var uni = material.uniforms;
