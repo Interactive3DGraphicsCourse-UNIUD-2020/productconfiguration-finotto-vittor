@@ -26,11 +26,11 @@ const float PI = 3.14159;
 
 vec3 schlick(float ldoth,vec3 color){
     //vec3 minF0 = vec3(0.04); // dieletrics
-    vec3 f0 =color*metalness; //mix(minF0,color,metalness); // lerp between metal and non metal
+    vec3 f0 =color*metalnessM; //mix(minF0,color,metalness); // lerp between metal and non metal
     return f0 + (vec3(1.0)-f0)* pow(1.0-ldoth,5.0);
 }
 float ggx(float ndoth){
-    float alpha2 = pow(roughness,4.0);
+    float alpha2 = pow(roughnessM,4.0);
     float d = pow(ndoth,2.0) * (alpha2 - 1.0)+1.0;
     return alpha2/ (PI * d * d);
 }
@@ -38,7 +38,7 @@ float G1(float dot,float k){
     return dot/((dot*(1.0-k))+k);
 }
 float smith(float ndotv,float ndotl){
-    float k = pow(roughness,2.0);
+    float k = pow(roughnessM,2.0);
     return G1(ndotl,k)* G1(ndotv,k);
 }
 vec3 microfacet(Light light){
@@ -62,7 +62,7 @@ vec3 microfacet(Light light){
                 ggx(ndoth) /
                 (4.0 * ndotl * ndotv);
     vec3 minDiffuse = vec3(0.0); // metallic
-    vec3 diffuse = mix(vColor.xyz,minDiffuse.xyz,metalness); // lerp between metal and non metal
+    vec3 diffuse = mix(vColor.xyz,minDiffuse.xyz,metalnessM); // lerp between metal and non metal
     vec3 result = (PI * spec * (light.color * (light.intensity+0.2)) *ndotl);
     return result;
 }
