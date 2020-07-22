@@ -37,17 +37,26 @@ Oltre a cercare di creare di realizzare degli shaders soddisfacenti dal punto di
 La ricerca dell'efficenza del codice è stata ricercata nell'utilizzo di chiamate asincrone per il caricamento dei modelli.
 
 ## Customizzazioni
-L'applicazione permette di scegliere diversi modelli, con uno o più materiali applicati direttamente dai file di importazione. Permette successivamente di cambiare il materiale applicato alle differenti mesh e di configurare i parametri principali del materiale. 
-Permette la scelta  tra diverse tipologie di materiale, partendo da materiali più semplici fino ad arrivare a quelli maggiormente fotorealistici.
-## Esempi
-![iron-glass](/re-img/glass.PNG)
+### Glass
 Glass material, permette di creare una superficie trasparente, che ammette sia riflessioni che rifrazioni.
+Parametri:
+* Reflection
+* eta
+![iron-glass](/re-img/glass.PNG)
+### PBR
+PBR Material, il più accurato tra i vai materiali proposti, permette di avere una illuminazione realistica, compresa di riflessi dall'enviorment.
+* Roughness
+* Metalness
 ![iron-pbr](/re-img/pbr.PNG)
-PBR Material, il più accurato tra ii vai materiali proposti, permette di avere una illuminazione realistica, compresa di riflessi dall'enviorment.
-![iron-pbr](/re-img/microfacet.PNG)
+### Microfacet
 Microfacet Material, un materiale con effetti di luce realistici.
-![iron-pbr](/re-img/basic.PNG)
+* Roughness
+* Metalness
+![iron-pbr](/re-img/microfacet.PNG)
+### Basic
 Basic Material, un materiale con un illuminazione non realistica fotorealistica.
-![iron-pbr](/re-img/toon.PNG)
+![iron-pbr](/re-img/basic.PNG)
+### Toon
 Toon Material, un materiale non fotorealistico che rende la luce in modo cartunesco, non fotorealistico, prevalentemente utilizzato in ambito videoludico.
+![iron-pbr](/re-img/toon.PNG)
 

@@ -33,3 +33,4 @@ Gestione gui dinamica e passaggio dei valori uniforms agli shaders
 
 ## Merge finale
 La struttura base del progetto viene unita alla gestione delle luci e dei materiali per la modifica real time.
+abilitata scelta sugli shader, se usare un valore di colore tramite attributo oppure una texture albedo tramite un valore booleano in una uniform.
