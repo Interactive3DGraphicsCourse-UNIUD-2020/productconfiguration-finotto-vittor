@@ -36,4 +36,18 @@ Oltre a cercare di creare di realizzare degli shaders soddisfacenti dal punto di
 ## Ottimizzazione
 La ricerca dell'efficenza del codice è stata ricercata nell'utilizzo di chiamate asincrone per il caricamento dei modelli.
 
+## Customizzazioni
+L'applicazione permette di scegliere diversi modelli, con uno o più materiali applicati direttamente dai file di importazione. Permette successivamente di cambiare il materiale applicato alle differenti mesh e di configurare i parametri principali del materiale. 
+Permette la scelta  tra diverse tipologie di materiale, partendo da materiali più semplici fino ad arrivare a quelli maggiormente fotorealistici.
+## Esempi
 ![iron-glass](/re-img/glass.PNG)
+Glass material, permette di creare una superficie trasparente, che ammette sia riflessioni che rifrazioni.
+![iron-pbr](/re-img/pbr.PNG)
+PBR Material, il più accurato tra ii vai materiali proposti, permette di avere una illuminazione realistica, compresa di riflessi dall'enviorment.
+![iron-pbr](/re-img/microfacet.PNG)
+Microfacet Material, un materiale con effetti di luce realistici.
+![iron-pbr](/re-img/basic.PNG)
+Basic Material, un materiale con un illuminazione non realistica fotorealistica.
+![iron-pbr](/re-img/toon.PNG)
+Toon Material, un materiale non fotorealistico che rende la luce in modo cartunesco, non fotorealistico, prevalentemente utilizzato in ambito videoludico.
+
