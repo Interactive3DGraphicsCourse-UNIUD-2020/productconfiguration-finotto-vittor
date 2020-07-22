@@ -500,13 +500,13 @@
 				});
 
 				var pbrParams= gui.addFolder("PBR Parameters");
-				pbrParams.add(p_material,"metalnessP").onChange(function(newVal){
+				pbrParams.add(p_material,"metalnessP").min(0).max(1).onChange(function(newVal){
 					for(var m of Object.entries(shaders_materials)){
-						m[1].uniforms.metalness.value = newVal;
+						m[1].uniforms.metalnessP.value = newVal;
 					}
 					render();
 				});
-				pbrParams.add(p_material,"roughnessP").onChange(function(newVal){
+				pbrParams.add(p_material,"roughnessP").min(0).max(1).onChange(function(newVal){
 					for(var m of Object.entries(shaders_materials)){
 						m[1].uniforms.roughnessP.value = newVal;
 					}
@@ -514,13 +514,13 @@
 				});
 
 				var microfacedParams= gui.addFolder("Microfaced Parameters");
-				microfacedParams.add(p_material,"metalnessM").onChange(function(newVal){
+				microfacedParams.add(p_material,"metalnessM").min(0).max(1).onChange(function(newVal){
 					for(var m of Object.entries(shaders_materials)){
 						m[1].uniforms.metalnessM.value = newVal;
 					}
 					render();
 				});
-				microfacedParams.add(p_material,"roughnessM").onChange(function(newVal){
+				microfacedParams.add(p_material,"roughnessM").min(0).max(1).onChange(function(newVal){
 					for(var m of Object.entries(shaders_materials)){
 						m[1].uniforms.roughnessM.value = newVal;
 					}
