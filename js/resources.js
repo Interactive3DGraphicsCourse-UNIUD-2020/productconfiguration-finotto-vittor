@@ -7,8 +7,9 @@ class Resources{
      */
   static _Shader = ()=>{ return "shaders/"}
   static _Texture = () => { return "textures/" }
-  static _FragShaderName = (name) => {return name +".fs.glsl"}
-  static _VertShaderName = (name) => {return name +".vs.glsl"}
+  static _Model = () => { return "models/" }
+  static _FragShaderName = (name) => {return name +".frag"}
+  static _VertShaderName = (name) => {return name +".vert"}
 
   /**
    * Basic Shader Vertex Path
@@ -58,6 +59,7 @@ class Resources{
    */
   static GlassVertexShader = ()=>{return Resources._Shader()+Resources._VertShaderName("GlassShader")}
 
+  static ModelMark = ()=>{return Resources._Model()+"Arc_Reactor/Arc_Reactor.obj"}
 
   static MatGoldAlbedo = ()=>{return Resources._Texture()+"gold/gold-color.jpg"}
   static MatGoldNormal = ()=>{return Resources._Texture()+"gold/gold-normalmap.jpg"}
