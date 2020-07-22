@@ -8,7 +8,7 @@ void main(){
     vUV = uv;
     vPosition = position;
     vModelViewMatrix = modelViewMatrix;
-    vNormal = vec3(normalMatrix * normal);
+    vNormal = normalize(vec3(normalMatrix * normal));
     vec4 vPosition = projectionMatrix * modelViewMatrix * vec4(position,1.0);
     gl_Position = vPosition;
 }

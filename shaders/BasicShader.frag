@@ -8,7 +8,6 @@ struct Light{
 
 uniform Light light[MAX_LIGHTS];
 uniform vec4 color;
-uniform float ambient;
 uniform sampler2D map;
 
 varying vec3 vNormal;
@@ -25,14 +24,14 @@ vec4 simpleLight(Light light){
     vLightPos = vec3(viewMatrix * vec4(light.position,1.0));
     vCamPos = (vModelViewMatrix * vec4(vPosition,1.0)).xyz;
     vec3 s = normalize(vLightPos-vCamPos);
-    return ((vec4(light.color,1.0) * light.intensity) * texColor * max(dot(s,vNormal),0.0))/(1.0*PI* length(vLightPos-vCamPos)); 
-    
-}
+    return((vec4(light.color,1.0) * light.intensity) * texColor * max(dot(s,vNormal),0.0))/(1.0*PI* pow(length(vLightPos-vCamPos),2.0));
+  }  
+
 
 void main(){
     vec4 result= vec4(0,0,0,0);
     for(int i =0;i<MAX_LIGHTS;i++){
         result=result + simpleLight(light[i]);
-    } 
+    }
     gl_FragColor =result;
 }
