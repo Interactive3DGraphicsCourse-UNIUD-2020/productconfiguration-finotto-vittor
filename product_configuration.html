@@ -89,7 +89,7 @@
 
       controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-			var spotLight = new THREE.SpotLight( 0xffffff );
+			/*var spotLight = new THREE.SpotLight( 0xffffff );
 			spotLight
 			spotLight.position.set( 0, 2, 0 );
 			spotLight.intensity = 1;
@@ -117,7 +117,7 @@
 			spotLight1.shadow.camera.far = 4000;
 			spotLight1.shadow.camera.fov = 30;
 
-			scene.add( spotLight1 );
+			scene.add( spotLight1 );*/
 
 
 
@@ -170,7 +170,7 @@
 			scene.add(light2);
 			scene.add(light3);
 			scene.add(light4);
-			
+
 			scene.add(spotL1);
 			scene.add(spotL2);
 			scene.add(spotL3);
@@ -323,6 +323,29 @@
 							light4Parameters.green,
 							light4Parameters.blue);
 						}
+						light1.color=new THREE.Color(
+							light1Parameters.red,
+							light1Parameters.green,
+							light1Parameters.blue);
+						light1.intensity=	light1Parameters.intensity;
+
+						light2.color=new THREE.Color(
+							light2Parameters.red,
+							light2Parameters.green,
+							light2Parameters.blue);
+						light2.intensity=	light2Parameters.intensity;
+
+						light3.color=new THREE.Color(
+							light3Parameters.red,
+							light3Parameters.green,
+							light3Parameters.blue);
+						light3.intensity=	light3Parameters.intensity;
+
+						light4.color=new THREE.Color(
+							light4Parameters.red,
+							light4Parameters.green,
+							light4Parameters.blue);
+						light4.intensity=	light4Parameters.intensity;
 			}
 
   		function clearGui() {
