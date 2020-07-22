@@ -505,7 +505,7 @@
 											if(shaders_materials[newVal]){
 												if(o.material.map){
 													var map = o.material.map;
-												} else if(o.material.uniforms.map){
+												} else if(o.material.uniforms && o.material.uniforms.map){
 													var map = o.material.uniforms.map.value;
 												}
 												var newMaterial = generate_material(shaders_materials[newVal]);
