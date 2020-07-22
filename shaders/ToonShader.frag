@@ -1,5 +1,5 @@
 // Fragment
-#define MAX_LIGHTS 2
+#define MAX_LIGHTS 4
 struct Light{
     vec3 position;
     vec3 color;

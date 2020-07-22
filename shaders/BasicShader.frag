@@ -1,5 +1,5 @@
 // Fragment
-#define MAX_LIGHTS 2
+#define MAX_LIGHTS 4
 struct Light{
     vec3 position;
     vec3 color;
@@ -22,8 +22,8 @@ const float PI = 3.14159;
 
 vec4 simpleLight(Light light){
     vec4 texColor = texture2D(map,vUV);
-    vLightPos = vec3(viewMatrix * vec4(light.position,1.0));
-    vCamPos = (viewMatrix * vec4(vPosition,1.0)).xyz;
+    vLightPos = vec3(vModelViewMatrix * vec4(light.position,1.0));
+    vCamPos = (vModelViewMatrix * vec4(vPosition,1.0)).xyz;
     vec3 s = normalize(vLightPos-vCamPos);
     return((vec4(light.color,1.0) * light.intensity) * texColor * max(dot(s,vNormal),0.0))/(4.0*PI* pow(length(vLightPos-vCamPos),2.0)); 
     // vec4(light.color,1.0)*texColor * dot(s,vNormal);//
