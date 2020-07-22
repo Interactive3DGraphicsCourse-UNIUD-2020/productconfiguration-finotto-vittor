@@ -3,7 +3,7 @@
 ## Descrizione
 Il progetto consiste nella scelta di un prodotto delle Stark Industries come le armature di IronMan e di poterle configurare col visualizzare 3D della A.C.M.E.
 
-Tramite la gui si può scegliere un prodotto da una lista, per ogni prodotto viene mostrata una lista di materiali disponibili col modello che possono essere modificati e/o modificati con dei materiali creati da noi.
+Tramite la gui si può scegliere un prodotto da una lista, per ogni prodotto viene mostrata una lista di materiali disponibili col modello che possono essere modificati e/o sostituiti con dei materiali creati da noi.
 È possibile muoversi intorno al prodotto con il mouse e ingrandirlo/rimpicciolirlo a piacimento.
 
 
@@ -30,7 +30,7 @@ Alla scelta del prodotto viene modificata la cartella contenente i materiali gi�
 In linea teorica, questo configuratore potrebbe accettare in input qualsiasi tipo di modello in formato .obj e .gltf, come diversi shaders, senza modifiche se non sui path relativi e i nomi da utilizzare.
 
 ## Problematiche
-Oltre a cercare di creare di realizzare degli shaders soddisfacenti dal punto di vista visivo, le difficoltà maggiori riscontrate sono state modifica dinamica della gui e la modifica dei singoli materiali.
+Oltre a cercare di realizzare degli shaders soddisfacenti dal punto di vista visivo, le difficoltà maggiori riscontrate sono state la modifica dinamica della gui e la modifica dei singoli materiali.
 
 
 ## Ottimizzazione
@@ -44,7 +44,7 @@ Parametri:
 * eta
 ![iron-glass](/re-img/glass.PNG)
 ### PBR
-PBR Material, il più accurato tra i vai materiali proposti, permette di avere una illuminazione realistica, compresa di riflessi dall'enviorment.
+PBR Material, il più accurato tra i vari materiali proposti, permette di avere una illuminazione realistica, compresa di riflessi dall'enviorment.
 * Roughness
 * Metalness
 ![iron-pbr](/re-img/pbr.PNG)
