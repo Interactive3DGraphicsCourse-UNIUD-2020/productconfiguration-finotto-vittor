@@ -83,7 +83,7 @@
 			var camera = new THREE.PerspectiveCamera( 75, 0.75*window.innerWidth / window.innerHeight, 0.1, 10000 );
 
 			var renderer = new THREE.WebGLRenderer({ antialias: true });
-
+			renderer.toneMapping = THREE.CineonToneMapping;
       controls = new THREE.OrbitControls( camera, renderer.domElement );
 
 			var product_materials = {};
@@ -161,8 +161,8 @@
 
 
 			var p_material={
-				"roughness": 0.54,
-				"metalness": 0.54,
+				"roughness": 0.01,
+				"metalness": 0.99,
 				"roughnessP": 0.54,
 				"metalnessP": 0.54,
 				"roughnessM": 0.54,
@@ -495,7 +495,6 @@
 					m.add(p_material, "type", all_s).onChange(
 						function(newVal) {
 							if(this.__gui.__controllers.length>1){
-								console.log(this.__gui.__controllers)
 								this.__gui.remove(this.__gui.__controllers[2]);
 								this.__gui.remove(this.__gui.__controllers[1]);
 							}
