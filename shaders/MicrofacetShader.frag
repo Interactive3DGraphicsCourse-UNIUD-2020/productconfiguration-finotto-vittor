@@ -9,7 +9,7 @@ struct Light{
 uniform Light light[MAX_LIGHTS];
 uniform float metalness;
 uniform float roughness;
-//uniform vec4 color;
+uniform vec4 color;
 
 uniform sampler2D map;
 
@@ -26,7 +26,7 @@ const float PI = 3.14159;
 vec3 schlick(float ldoth,vec3 color){
     //vec3 minF0 = vec3(0.04); // dieletrics
     vec3 f0 =color*metalness; //mix(minF0,color,metalness); // lerp between metal and non metal
-    return f0 + (vec3(1.0)-f0)* pow(1.0-ldoth,5.0); 
+    return f0 + (vec3(1.0)-f0)* pow(1.0-ldoth,5.0);
 }
 float ggx(float ndoth){
     float alpha2 = pow(roughness,4.0);
@@ -43,7 +43,7 @@ float smith(float ndotv,float ndotl){
 vec3 microfacet(Light light){
     vec3 lpos = (viewMatrix* vec4(light.position,1.0)).xyz;
     vec3 pos = (vModelViewMatrix* vec4(vPosition,1.0)).xyz;
-    vec3 l = normalize(lpos-pos); 
+    vec3 l = normalize(lpos-pos);
     vec3 n = normalize(vNormal);
     vec3 v = normalize(-pos);
     vec3 h = normalize(v+l);
@@ -67,10 +67,10 @@ vec3 microfacet(Light light){
 }
 
 void main(){
-    tColor = texture2D(map,vUV);
+    tColor = normalize(texture2D(map,vUV)+color);
     vec3 result= vec3(0.0);
     for(int i =0;i<MAX_LIGHTS;i++){
         result=result+microfacet(light[i]);
-    } 
+    }
     gl_FragColor=vec4(result,1.0);
 }

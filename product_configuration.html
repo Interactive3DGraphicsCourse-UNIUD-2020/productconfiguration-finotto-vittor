@@ -5,15 +5,47 @@
 		<style>
 
 		body {
-			font-family: Monospace;
-			background-color: #f0f0f0;
+			font-family: Arial, sans-serif;
+			color: #f0f0f0;
+			background-color: #6A0C0B; //#4A1919;
 			margin: 0px;
 			overflow: hidden;
 		}
 
 		canvas {
-			width: 100%;
+			width: 75%;
 			height: 100%;
+		}
+
+		#gui {
+			position: absolute;
+			top: 2px;
+			right: 25%;
+		}
+
+		#acme{
+			position: absolute;
+			bottom: 2px;
+			left: 2px;
+		}
+
+		#stark{
+			position: absolute;
+			bottom: 2px;
+			right: 25%;
+		}
+
+		#description{
+			position: absolute;
+			height: 100%;
+			width: 24.5%;
+			right: 2px;
+			top:2px;
+		}
+		#button{
+			position: absolute;
+			right: 10%;
+			bottom: 30%;
 		}
 
 	</style>
@@ -26,41 +58,39 @@
 		<script src="libs/MTLLoader.js"></script>
 	</head>
 	<body>
-
-		<script type="text/x-glsl" id="vertex">
-			uniform vec3 materialColor;
-			varying vec3 vColor;
-
-			void main() {
-		    	// transforms the vertex from object space to clip space coords
-				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-				vColor = materialColor;
-			}
+		<img src="logos/acme.png" alt="ACME logo" id="acme">
+		<img src="logos/stark.png" alt="Stark logo" id="stark">
+		<div id=description>
+			<font size=6>
+				A.C.M.E. industrustrial presents:<br>
+				<b>STARK INDUSTRIES COLLABORATION</b>
+			</font>
+			<br><br>
+			We produdly announce in our store armors and products created by Stark Industries<br>
+			Here you can find some <b>IronMan helmets</b>, <b>Ironman armors</b> such as <b>Mark42</b> and <b>Hulk Buster</b> version, and even the <b>Ark Reactor</b>, <b><i>completely configurable!</i></b> <br>
+			Edit your product as you wish and press the <b>ORDER NOW</b> button, later on you will receive all the other informations!
+		</div>
+		<button id="button" onclick="done()"> ORDER NOW! </button>
+		<script>
+		function done(){
+			alert("Thank you for your order");
+		}
 		</script>
-
-		<script type="text/x-glsl" id="fragment">
-			varying vec3 vColor;
-
-			void main() {
-				gl_FragColor = vec4(vColor, 1.0);
-			}
-		</script>
-
 
 		<script>
 			var shaders_materials = {};
 			var shaders_names = ["Basic", "Glass", "Microfacet", "PBR", "Phong"];
 			var oldObject;
 			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
+			var camera = new THREE.PerspectiveCamera( 75, 0.75*window.innerWidth / window.innerHeight, 0.1, 10000 );
 
 			var renderer = new THREE.WebGLRenderer({ antialias: true });
 
       controls = new THREE.OrbitControls( camera, renderer.domElement );
 
 			var spotLight = new THREE.SpotLight( 0xffffff );
-			spotLight.position.set( 10, 600, 10 );
-
+			spotLight.position.set( 0, 1, 0 );
+			spotLight.intensity = 1;
 			spotLight.castShadow = true;
 
 			spotLight.shadow.mapSize.width = 1024;
@@ -73,15 +103,27 @@
 			scene.add( spotLight );
 
 
-			var vs = document.getElementById("vertex").textContent;
-			var fs = document.getElementById("fragment").textContent;
+			var spotLight1 = new THREE.SpotLight( 0xffffff );
+			spotLight1.position.set( 1,0, 0 );
+			spotLight1.intensity = 1;
+			spotLight1.castShadow = true;
+
+			spotLight1.shadow.mapSize.width = 1024;
+			spotLight1.shadow.mapSize.height = 1024;
+
+			spotLight1.shadow.camera.near = 500;
+			spotLight1.shadow.camera.far = 4000;
+			spotLight1.shadow.camera.fov = 30;
+
+			scene.add( spotLight1 );
+
 
 
       // default: red plastic
 			var product_materials = {};
 
       var product = {
-        product: "Sphere"
+        product: "Select Product"
 			};
 
 			var light1Parameters = {
@@ -101,22 +143,19 @@
 
 			var base_uniforms = {
 				light: {
-					type: "Light",
 					value: [
-						{
-							position:{type:"vec3", value: spotLight.position},
-							color:{type:"vec3", value: new THREE.Vector3(1,1,1)},
-							intensity:{type:"f", value: 1.5}
-						},
-						{
-							position:{type:"vec3", value: spotLight.position},
-							color:{type:"vec3", value: new THREE.Vector3(1,1,1)},
-							intensity:{type:"f", value: 1.5}
-						},
-					]
+                                    { position: spotLight.position, color:spotLight.color, intensity: spotLight.intensity },
+                                    { position: spotLight1.position, color: spotLight1.color, intensity: spotLight1.intensity }
+                                ]
 				},
 				roughness: {type:"f", value:0.54},
 				metalness: {type:"f", value:0.27},
+				reflection: {type:"f", value:0.38},
+				eta: {type:"f", value:0.66},
+				color: {type:"vec4", value: new THREE.Vector4()},
+				map: {type:"sampler2D"},
+				envMap: {type:"samplerCube"},
+				normalMap:  {type:"sampler2D"}
 			}
 
       var box = new THREE.Box3(
@@ -126,27 +165,15 @@
 
       var sizeB = box.getSize();
 
-			var sphereMaterial = new THREE.ShaderMaterial({ uniforms: base_uniforms, vertexShader: vs, fragmentShader: fs });
 
-			sphere = new THREE.Mesh(
-				new THREE.SphereGeometry( 10, 32, 16 ),
-				sphereMaterial );
-      sphere.geometry.computeBoundingBox();
-
-      var sizeO = sphere.geometry.boundingBox.getSize();
-      var ratio = sizeB.divide( sizeO );
-
-      sphere.matrixAutoUpdate=false;
-      sphere.matrix.makeScale(ratio.x,ratio.y, ratio.z);
-			sphere.name="Sphere";
-			oldObject = sphere;
+			//oldObject = IronMan;
 
 
       var container = new THREE.Object3D();
-      container.add(sphere);
       scene.add(container);
 			camera.lookAt( container );
 			spotLight.target=container;
+			spotLight1.target=container;
       var gui;
   		var stats = new Stats();
 
@@ -158,14 +185,18 @@
 					'posx.jpg', 'negx.jpg',
 					'posy.jpg', 'negy.jpg',
 					'posz.jpg', 'negz.jpg'
-				], onLoad=render );
+				], onLoad=env_map_loaded );
 
-			textureCube.onload = function(){render();};
+			//textureCube.onload = function(){render();};
 			scene.background = textureCube;
 			textureCube.minFilter = THREE.LinearMipMapLinearFilter;
 
 			var all_materials = {};
 
+			function env_map_loaded(){
+				base_uniforms.envMap.value=textureCube;
+				render();
+			}
 
   		function init() {
 
@@ -173,13 +204,13 @@
   			//renderer.gammaOutput = true;
   			renderer.setClearColor( 0xf0f0f0 );
 
-  			camera.position.set( 0, 150, 150 );
+  			camera.position.set( 0, 100, 150 );
         camera.lookAt( new THREE.Vector3(0,0,0));
   			scene.add( camera );
 
   			document.body.appendChild( renderer.domElement );
   			renderer.setPixelRatio( window.devicePixelRatio );
-  			renderer.setSize( window.innerWidth, window.innerHeight );
+  			renderer.setSize( 0.75*window.innerWidth, window.innerHeight );
 
   			controls.addEventListener( 'change', render );
   			controls.minDistance = 1;
@@ -199,8 +230,8 @@
 
   		function onResize() {
 
-  			renderer.setSize( window.innerWidth, window.innerHeight );
-  			camera.aspect = ( window.innerWidth / window.innerHeight );
+  			renderer.setSize( 0.75*window.innerWidth, window.innerHeight );
+  			camera.aspect = ( 0.75*window.innerWidth / window.innerHeight );
   			camera.updateProjectionMatrix();
 
   		}
@@ -232,13 +263,12 @@
 								light2Parameters.blu);
 						}*/
 					for(var m of Object.entries(shaders_materials)){
-						console.log(m[1].uniforms.light.value[0]);
 						m[1].uniforms.light.value[0].intensity = light1Parameters.intensity;
 						m[1].uniforms.light.value[0].color = new THREE.Vector3(
 							light1Parameters.red,
 							light1Parameters.green,
 							light1Parameters.blu);
-						m[1].uniforms.light.value[0].intensity = light2Parameters.intensity;
+						m[1].uniforms.light.value[1].intensity = light2Parameters.intensity;
 						m[1].uniforms.light.value[1].color = new THREE.Vector3(
 							light2Parameters.red,
 							light2Parameters.green,
@@ -249,14 +279,15 @@
   		function clearGui() {
 
   			if ( gui ) gui.destroy();
-  			gui = new dat.GUI();
+				gui = new dat.GUI( { autoPlace: true } );
+				gui.domElement.id = 'gui';
   			gui.open();
 
   		}
 
   		function buildGui() {
   			clearGui();
-        var products_list = ["IronMan", "IronMan-Helmet-1", "IronMan-Helmet-2", "Hulk-Buster-IronMan", "IronMan-Mark42", "Arc-Reactor", "Sphere"]
+        var products_list = ["IronMan", "IronMan-Helmet-1", "IronMan-Helmet-2", "Hulk-Buster-IronMan", "IronMan-Mark42", "Arc-Reactor", "Select Product"]
         gui.add(product, "product", products_list).onChange( function(newVal) {
 					if(oldObject){ oldObject.visible=false;}
           for(child of container.children){
@@ -352,6 +383,8 @@
 						"type": material,
 						"roughness": 0.54,
 						"metalness": 0.54,
+						"reflection": 0.38,
+						"eta": 0.66
 					};
 
 					//product_materials["material"]=material;
@@ -371,7 +404,19 @@
 									if(o.isMesh){
 										if(o.material.name==initialValue){
 											if(shaders_materials[newVal]){
+												if(o.material.color){
+													var c = new THREE.Vector4(o.material.color.r, o.material.color.g, o.material.color.b, 1.0);
+												} else {
+													var c = o.material.uniforms.color.value;
+												}
+												if(o.material.map){
+													var map = o.material.map;
+												}
 												o.material=shaders_materials[newVal];
+												o.material.uniforms.color.value=c;
+												if(map){
+													o.material.uniforms.map.value=map;
+												}
 											} else {
 												o.material=all_materials[oldObject.name][newVal];
 											}
@@ -381,27 +426,79 @@
 										}
 									}
 								});
+							if(newVal=="Glass"){
+								//var c = this.__gui.__controllers.length-1;
+								for(var c = this.__gui.__controllers.length-1; c>=0; c--){
+									if(this.__gui.__controllers[c].property!="type"){
+										this.__gui.__controllers[c].remove();
+									}
+								}
+
+
+									this.__gui.add(p_material,'reflection').min(0).max(1).onChange( function(newVal) {
+									var initialValue = this.object.type;
+									oldObject.traverse((o)=>{
+											if(o.isMesh){
+												if(o.material.name==initialValue){
+													if(o.material.uniforms){
+														o.material.uniforms.reflection.value=newVal;
+													} else if (o.material.reflection>=0) {
+														o.material.reflection = newVal;
+													}
+												}
+											}
+										});
+									render()
+								});
+
+									this.__gui.add(p_material,'eta').min(0).max(1).onChange( function(newVal) {
+									var type = this.object.type;
+									oldObject.traverse((o)=>{
+											if(o.isMesh){
+
+												if(o.material.name==initialValue){
+													if(o.material.uniforms){
+														o.material.uniforms.eta.value=newVal;
+														console.log(o.material.uniforms);
+													} else if (o.material.eta>=0) {
+														o.material.eta = newVal;
+													}
+												}
+											}
+										});
+									render()
+								});
+							} else{
+								console.log(initialValue);
+							}
+
 							render()
 						});
 					m.add(p_material,'roughness').min(0).max(1).onChange( function(newVal) {
-						var initialValue = this.initialValue;
+						var initialValue = this.object.type;
 						oldObject.traverse((o)=>{
 								if(o.isMesh){
 									if(o.material.name==initialValue){
-										o.material.uniforms.roughness.value=newVal;
-										//console.log(o.material);
+										if(o.material.uniforms){
+											o.material.uniforms.roughness.value=newVal;
+										} else if (o.material.roughness>=0) {
+											o.material.roughness = newVal;
+										}
 									}
 								}
 							});
 						render()
 					});
 					m.add(p_material,'metalness').min(0).max(1).onChange( function(newVal) {
-						var initialValue = this.initialValue;
+						var initialValue = this.object.type;
 						oldObject.traverse((o)=>{
 								if(o.isMesh){
 									if(o.material.name==initialValue){
-										o.material.uniforms.metalness.value=newVal;
-										//console.log(o.material);
+										if(o.material.uniforms){
+											o.material.uniforms.metalness.value=newVal;
+										} else if (o.material.metalness>=0) {
+											o.material.metalness = newVal;
+										}
 									}
 								}
 							});
@@ -457,6 +554,7 @@
 					model.traverse((o)=>{
 						if(o.isMesh){
 							//o.material.uniforms=base_uniforms;
+							o.material.name="material";
 							all_materials[name] = {material: o.material};
 						}
 					})
@@ -491,11 +589,7 @@
 			function obj_loader(url, name, mtl_url){
 				var mtlLoader = new THREE.MTLLoader();
 				mtlLoader.load( mtl_url, function( materials ) {
-
 					materials.preload();
-					/*for(var m of Object.keys(materials.materials)){
-						m.uniforms=base_uniforms;
-					}*/
 					all_materials[name]=materials.materials;
 					var objLoader = new THREE.OBJLoader();
 					objLoader.setMaterials( materials );
@@ -568,11 +662,11 @@
 				var material = new THREE.ShaderMaterial( {name:m_name, uniforms:base_uniforms});
 				loader.load(vertex_url,function ( data ) {
 					var vertex =  data;
-					material.vertex = vertex;
+					material.vertexShader = vertex;
 				},);
 				loader.load(fragment_url,function ( data ) {
 						var fragment =  data;
-						material.fragment = fragment;
+						material.fragmentShader = fragment;
 				},);
 				shaders_materials[m_name]=material;
 				//all_materials[m_name] = material;
