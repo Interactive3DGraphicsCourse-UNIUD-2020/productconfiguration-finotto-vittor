@@ -726,15 +726,22 @@
 						object.visible=false;
 						object.name=name;
 						//QUI
-						let geo = new THREE.Geometry().fromBufferGeometry(object);
-						let leng = geo.vertices.length;
-						let colors = new Float32Array(leng);
-						for(let i=0;i<leng-3;i++){
-							colors[i]=1.0,
-							colors[i+1]=0.0
-							colors[i+2]=0.5;
-						}
-						this.geo.addAttribute('color'),new THREE.BufferAttribute(colors,3);
+						object.traverse((o)=>{
+							if(o.isMesh){
+								console.log(o);
+								console.log(o.geometry.isBufferGeometry);
+								let geo = o.geometry;
+								let leng = geo.attributes.position.count;
+								let colors = new Float32Array(leng);
+								for(let i=0;i<leng-3;i+=3){
+									console.log(o.material);
+									colors[i]=o.material.color.r,
+									colors[i+1]=o.material.color.g;
+									colors[i+2]=o.material.color.b;
+								}
+								geo.addAttribute('color',new THREE.BufferAttribute(colors,3));
+							}
+						})
 					},
 					// called while loading is progressing
 					function ( gltf ) {
@@ -784,13 +791,7 @@
 			// This is a basic asyncronous shader loader for THREE.js.
 			function shadersLoader(vertex_url, fragment_url, m_name) {
 				var loader = new THREE.FileLoader();
-				var material = new THREE.ShaderMaterial( {name:m_name, uniforms:{
-					color: {value:new THREE.Vector4(base_uniforms.color.x,base_uniforms.color.y,base_uniforms.color.z)},
-					light: {value:base_uniforms.light.value},
-					roughness : {value:1},
-					metalness: {value:1},
-					envMap: {value:base_uniforms.envMap}
-				}});
+				var material = new THREE.ShaderMaterial({uniforms:base_uniforms});
 				loader.load(vertex_url,function ( data ) {
 					var vertex =  data;
 					material.vertexShader = vertex;
