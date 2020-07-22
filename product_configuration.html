@@ -182,14 +182,16 @@
 					{ position: light4.position, color:light4.color, intensity:light4.intensity },
                     ]
 				},
-				roughness: {value:0.54},
-				metalness: {value:0.27},
+				roughnessP: {value:0.54},
+				metalnessP: {value:0.27},
+				roughnessM: {value:0.54},
+				metalnessM: {value:0.27},
 				reflection: {value:0.38},
 				eta: {value:0.66},
 				color: {},
 				map: {},
 				envMap: {},
-				normalMap: {}
+				useMap: {}
 			}
 
       var box = new THREE.Box3(
@@ -200,7 +202,14 @@
       var sizeB = box.getSize();
 
 
-			//oldObject = IronMan;
+			var p_material={
+				"roughnessP": 0.54,
+				"metalnessP": 0.54,
+				"roughnessM": 0.54,
+				"metalnessM": 0.54,
+				"reflection": 0.38,
+				"eta": 0.66
+			};
 
 
       var container = new THREE.Object3D();
@@ -358,36 +367,43 @@
 
   		function buildGui() {
   			clearGui();
-        var products_list = ["IronMan", "IronMan-Helmet-1", "IronMan-Helmet-2", "Hulk-Buster-IronMan", "IronMan-Mark42", "Arc-Reactor", "Select Product"]
+        var products_list = ["IronMan-Helmet-1", "IronMan-Helmet-2", "Hulk-Buster-IronMan", "IronMan-Mark42", "Arc-Reactor", "Select Product"]
         gui.add(product, "product", products_list).onChange( function(newVal) {
 					if(oldObject){ oldObject.visible=false;}
           for(child of container.children){
-          	if(newVal=="Sphere" && child.name=="Sphere"){
-							child.visible=true;
-							oldObject = child;
-							var product_materials = [];
-          	} else if(newVal=="IronMan" && child.name=="IronMan"){
+          	if(newVal=="IronMan-Helmet-1" && child.name=="IronMan_Helmet_1"){
 							child.visible = true;
 							oldObject = child;
-							var product_materials = all_materials["IronMan"];
-          	} else if(newVal=="IronMan-Helmet-1" && child.name=="IronMan_Helmet_1"){
-							child.visible = true;
-							oldObject = child;
+							for(var m of Object.entries(shaders_materials)){
+								m[1].uniforms.useMap.value = false;
+							}
 							var product_materials = all_materials["IronMan_Helmet_1"];
           	} else if(newVal=="IronMan-Helmet-2" && child.name=="IronMan_Helmet_2"){
 							child.visible = true;
+							for(var m of Object.entries(shaders_materials)){
+								m[1].uniforms.useMap.value = false;
+							}
 							oldObject = child;
 							var product_materials = all_materials["IronMan_Helmet_2"];
           	} else if(newVal=="Hulk-Buster-IronMan" && child.name=="Hulk_Buster_IronMan"){
 							child.visible = true;
+							for(var m of Object.entries(shaders_materials)){
+								m[1].uniforms.useMap.value = true;
+							}
 							oldObject = child;
 							var product_materials = all_materials["Hulk_Buster_IronMan"];
           	} else if(newVal=="IronMan-Mark42" && child.name=="IronMan_Mark42"){
 							child.visible = true;
+							for(var m of Object.entries(shaders_materials)){
+								m[1].uniforms.useMap.value = true;
+							}
 							oldObject = child;
 							var product_materials = all_materials["IronMan_Mark42"];
           	} else if(newVal=="Arc-Reactor" && child.name=="Arc_Reactor"){
 							child.visible = true;
+							for(var m of Object.entries(shaders_materials)){
+								m[1].uniforms.useMap.value = false;
+							}
 							oldObject = child;
 							var product_materials = all_materials["Arc_Reactor"];
           }
@@ -466,7 +482,52 @@
 					updateLightUniforms();
 					render();
 				 });
-        materials=gui.addFolder('Materials');
+
+
+
+				var glassParams=gui.addFolder("Glass Parameters");
+				glassParams.add(p_material,"reflection").min(0).max(1).onChange(function(newVal){
+					for(var m of Object.entries(shaders_materials)){
+						m[1].uniforms.reflection.value = newVal;
+					}
+					render();
+				});
+				glassParams.add(p_material,"eta").min(0).max(1).onChange(function(newVal){
+					for(var m of Object.entries(shaders_materials)){
+						m[1].uniforms.eta.value = newVal;
+					}
+					render();
+				});
+
+				var pbrParams= gui.addFolder("PBR Parameters");
+				pbrParams.add(p_material,"metalnessP").onChange(function(newVal){
+					for(var m of Object.entries(shaders_materials)){
+						m[1].uniforms.metalness.value = newVal;
+					}
+					render();
+				});
+				pbrParams.add(p_material,"roughnessP").onChange(function(newVal){
+					for(var m of Object.entries(shaders_materials)){
+						m[1].uniforms.roughnessP.value = newVal;
+					}
+					render();
+				});
+
+				var microfacedParams= gui.addFolder("Microfaced Parameters");
+				microfacedParams.add(p_material,"metalnessM").onChange(function(newVal){
+					for(var m of Object.entries(shaders_materials)){
+						m[1].uniforms.metalnessM.value = newVal;
+					}
+					render();
+				});
+				microfacedParams.add(p_material,"roughnessM").onChange(function(newVal){
+					for(var m of Object.entries(shaders_materials)){
+						m[1].uniforms.roughnessM.value = newVal;
+					}
+					render();
+				});
+
+				materials=gui.addFolder('Materials');
 
 
   		}
@@ -478,20 +539,15 @@
 				folder.close();
 				gui.__ul.removeChild(folder.domElement.parentNode);
 				delete gui.__folders["Materials"];
+
+
 				materials=gui.addFolder('Materials');
 				//console.log(productMaterials);
 				//var p_materials = {};
-				var mats = [];
+
 				for(var material in productMaterials){
 
-					var p_material={
-						"type": material,
-						"roughness": 0.54,
-						"metalness": 0.54,
-						"reflection": 0.38,
-						"eta": 0.66
-					};
-
+					p_material.type=material;
 					//product_materials["material"]=material;
 					//console.log(product_materials);
 					var all_s = [];
@@ -501,8 +557,6 @@
 					//all_names = shaders_names;
 					all_s.push(material);
 					var m = materials.addFolder("Material "+material);
-					mats.push(m);
-					//shaders_materials[material]=material;
 					m.add(p_material, "type", all_s).onChange(
 						function(newVal) {
 							var initialValue = this.initialValue;
@@ -510,15 +564,10 @@
 									if(o.isMesh){
 										if(o.material.initialValue==initialValue){
 											if(shaders_materials[newVal]){
-												if(o.material.color){
-													var c = new THREE.Vector4(o.material.color.r, o.material.color.g, o.material.color.b, 1.0);
-												} else {
-													var c = o.material.uniforms.color.value;
-												}
 												if(o.material.map){
 													var map = o.material.map;
 												}
-												var newMaterial = generate_material(shaders_materials[newVal], c);
+												var newMaterial = generate_material(shaders_materials[newVal]);
 												newMaterial.initialValue=initialValue;
 												//newMaterial.uniforms.color.value=c;
 												console.log(newMaterial);
@@ -623,7 +672,6 @@
 
 			function load_objects(){
 				objects_url = [
-					["models/IronMan/IronMan.obj", "IronMan", "models/IronMan/IronMan.mtl"],
 					["models/ironman_helmet/obj/helmet.obj", "IronMan_Helmet_1", "models/ironman_helmet/obj/helmet.mtl"],
 					["models/30-iron-man-helmet-obj/iron_man_helmet.obj", "IronMan_Helmet_2", "models/30-iron-man-helmet-obj/iron man helmet.mtl"],
 					["models/hulk_buster_iron_man/scene.gltf", "Hulk_Buster_IronMan", ""],
@@ -726,22 +774,21 @@
 						object.visible=false;
 						object.name=name;
 						//QUI
-						object.traverse((o)=>{
-							if(o.isMesh){
-								console.log(o);
-								console.log(o.geometry.isBufferGeometry);
-								let geo = o.geometry;
-								let leng = geo.attributes.position.count;
-								let colors = new Float32Array(leng);
-								for(let i=0;i<leng-3;i+=3){
-									console.log(o.material);
-									colors[i]=o.material.color.r,
-									colors[i+1]=o.material.color.g;
-									colors[i+2]=o.material.color.b;
+						if(!object.map){
+							object.traverse((o)=>{
+								if(o.isMesh && !o.material.map){
+									let geo = o.geometry;
+									let leng = geo.attributes.position.count;
+									let colors = new Float32Array(leng);
+									for(let i=0;i<leng-3;i+=3){
+										colors[i]=o.material.color.r;
+										colors[i+1]=o.material.color.g;
+										colors[i+2]=o.material.color.b;
+									}
+									geo.addAttribute('color',new THREE.BufferAttribute(colors,3));
 								}
-								geo.addAttribute('color',new THREE.BufferAttribute(colors,3));
-							}
-						})
+							})
+						}
 					},
 					// called while loading is progressing
 					function ( gltf ) {
@@ -821,12 +868,10 @@
 			render();
 
 			function generate_material(material, color){
-				
+
 				var newMat = new THREE.ShaderMaterial();
 				newMat.name=material.name+newMat.uuid;
 				var uni = material.uniforms;
-				console.log(uni);
-				uni.color.value=new THREE.Vector4(color.x,color.y,color.z, 1);
 				newMat.uniforms=uni;
 				newMat.fragmentShader=''+material.fragmentShader;
 				newMat.vertexShader=''+material.vertexShader;
