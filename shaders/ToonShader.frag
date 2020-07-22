@@ -32,7 +32,7 @@ vec4 simpleLight(Light light){
 void main(){
     vec4 result= vec4(0,0,0,0);
     for(int i =0;i<MAX_LIGHTS;i++){
-        result=result + (simpleLight(light[i]));
+        result=result + normalize(simpleLight(light[i]));
     } 
     gl_FragColor =result;
 }
