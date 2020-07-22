@@ -207,6 +207,7 @@
 
 
       var container = new THREE.Object3D();
+			container.position.set(0,0,0);
       scene.add(container);
 			camera.lookAt( container );
 			light1.target=container;
@@ -255,8 +256,9 @@
   			controls.minDistance = 1;
   			controls.maxDistance = 10000;
   			//controls.maxPolarAngle = Math.PI / 2;
-  			controls.enablePan = false;
-  			controls.target.copy(new THREE.Vector3(0,0,0));
+  			//controls.enablePan = false;
+  			//controls.target.copy(new THREE.Vector3(0,0,0));
+				controls.target.copy(container.position);
   			controls.update();
 
   			window.addEventListener( 'resize', onResize, false );
