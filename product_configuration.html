@@ -78,6 +78,7 @@
 		</script>
 
 		<script>
+			var light1,light2,light3,light4;
 			var shaders_materials = {};
 			var shaders_names = ["Basic", "Glass", "Microfacet", "PBR", "Phong"];
 			var oldObject;
@@ -89,7 +90,8 @@
       controls = new THREE.OrbitControls( camera, renderer.domElement );
 
 			var spotLight = new THREE.SpotLight( 0xffffff );
-			spotLight.position.set( 0, 1, 0 );
+			spotLight
+			spotLight.position.set( 0, 2, 0 );
 			spotLight.intensity = 1;
 			spotLight.castShadow = true;
 
@@ -104,7 +106,7 @@
 
 
 			var spotLight1 = new THREE.SpotLight( 0xffffff );
-			spotLight1.position.set( 1,0, 0 );
+			spotLight1.position.set( 2,0, 0 );
 			spotLight1.intensity = 1;
 			spotLight1.castShadow = true;
 
@@ -139,14 +141,46 @@
 				blue: 1.0,
 				intensity: 1.5,
 			}
+			var light3Parameters = {
+				red: 1.0,
+				green: 1.0,
+				blue: 1.0,
+				intensity: 1.5,
+			}
 
+			var light4Parameters = {
+				red: 1.0,
+				green: 1.0,
+				blue: 1.0,
+				intensity: 1.5,
+			}
+			light1 = new THREE.SpotLight({color:new THREE.Color(1,1,1,1),intensity:2});
+			light2 = new THREE.SpotLight({color:new THREE.Color(1,1,1,1),intensity:10,position:new THREE.Vector3(-5,2,0)});
+			light3  = new THREE.SpotLight({color:new THREE.Color(1,1,1,1),intensity:100,position:new THREE.Vector3(1,0,0)});
+			light4  = new THREE.SpotLight({color:new THREE.Color(1,1,1,1),intensity:50,position:new THREE.Vector3(0,-2,0)});
+			light1.position.set(10,1000,0);
+			let spotL1 = new THREE.SpotLightHelper(light1);
+			let spotL2 = new THREE.SpotLightHelper(light2);
+			let spotL3 = new THREE.SpotLightHelper(light3);
+			let spotL4 = new THREE.SpotLightHelper(light4);
+			
+			scene.add(spotL1);
+			scene.add(spotL2);
+			scene.add(spotL3);
+			scene.add(spotL4);
 
+			scene.add(light1);
+			scene.add(light2);
+			scene.add(light3);
+			scene.add(light4);
 			var base_uniforms = {
 				light: {
 					value: [
-                                    { position: spotLight.position, color:spotLight.color, intensity: spotLight.intensity },
-                                    { position: spotLight1.position, color: spotLight1.color, intensity: spotLight1.intensity }
-                                ]
+					{ position: light1.position, color:light1.color, intensity:light1.intensity },
+					{ position: light2.position, color:light2.color, intensity:light2.intensity },
+					{ position: light3.position, color:light3.color, intensity:light3.intensity },
+					{ position: light4.position, color:light4.color, intensity:light4.intensity },
+                    ]
 				},
 				roughness: {type:"f", value:0.54},
 				metalness: {type:"f", value:0.27},
@@ -172,8 +206,10 @@
       var container = new THREE.Object3D();
       scene.add(container);
 			camera.lookAt( container );
-			spotLight.target=container;
-			spotLight1.target=container;
+			light1.target=container;
+			light2.target=container;
+			light3.target=container;
+			light4.target=container;
       var gui;
   		var stats = new Stats();
 
@@ -267,12 +303,22 @@
 						m[1].uniforms.light.value[0].color = new THREE.Vector3(
 							light1Parameters.red,
 							light1Parameters.green,
-							light1Parameters.blu);
+							light1Parameters.blue);
 						m[1].uniforms.light.value[1].intensity = light2Parameters.intensity;
 						m[1].uniforms.light.value[1].color = new THREE.Vector3(
 							light2Parameters.red,
 							light2Parameters.green,
-							light2Parameters.blu);
+							light2Parameters.blue);
+						m[1].uniforms.light.value[2].intensity = light3Parameters.intensity;
+						m[1].uniforms.light.value[2].color = new THREE.Vector3(
+							light3Parameters.red,
+							light3Parameters.green,
+							light3Parameters.blue);
+							m[1].uniforms.light.value[3].intensity = light4Parameters.intensity;
+						m[1].uniforms.light.value[3].color = new THREE.Vector3(
+							light4Parameters.red,
+							light4Parameters.green,
+							light4Parameters.blue);
 						}
 			}
 
@@ -361,6 +407,40 @@
 					updateLightUniforms();
 					render();
 			 });
+			 var light3 = lights.addFolder("Light 3");
+				light3.add(light3Parameters,'red').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				 });
+				light3.add(light3Parameters,'green').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				 });
+				light3.add(light3Parameters,'blue').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				});
+				light3.add(light3Parameters,'intensity').min(0).max(10).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				 });
+				 var light4 = lights.addFolder("Light 4");
+				light4.add(light4Parameters,'red').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				 });
+				light4.add(light4Parameters,'green').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				 });
+				light4.add(light4Parameters,'blue').min(0).max(1).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				});
+				light4.add(light4Parameters,'intensity').min(0).max(10).onChange( function(newVal) {
+					updateLightUniforms();
+					render();
+				 });
         materials=gui.addFolder('Materials');
 
 

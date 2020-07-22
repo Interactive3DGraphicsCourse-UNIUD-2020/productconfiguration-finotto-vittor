@@ -1,6 +1,6 @@
 // Fragment
 #extension GL_OES_standard_derivatives : enable
-#define MAX_LIGHTS 2
+#define MAX_LIGHTS 4
 struct Light{
     vec3 position;
     vec3 color;
