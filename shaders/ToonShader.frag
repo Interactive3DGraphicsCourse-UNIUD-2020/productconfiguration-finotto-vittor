@@ -11,7 +11,7 @@ uniform Light light[MAX_LIGHTS];
 uniform float ambient;
 uniform sampler2D map;
 
-varying vec4 color;
+varying vec4 vColor;
 varying vec3 vNormal;
 varying mat4 vModelViewMatrix;
 varying vec3 vPosition;
