@@ -52,11 +52,11 @@ PBR Material, il più accurato tra i vai materiali proposti, permette di avere u
 Microfacet Material, un materiale con effetti di luce realistici.
 * Roughness
 * Metalness
-![iron-pbr](/re-img/microfacet.PNG)
+![iron-microfacet](/re-img/microfacet.PNG)
 ### Basic
 Basic Material, un materiale con un illuminazione non realistica fotorealistica.
-![iron-pbr](/re-img/basic.PNG)
+![iron-lambertian](/re-img/lambertian.PNG)
 ### Toon
 Toon Material, un materiale non fotorealistico che rende la luce in modo cartunesco, non fotorealistico, prevalentemente utilizzato in ambito videoludico.
-![iron-pbr](/re-img/toon.PNG)
+![iron-toon](/re-img/toon.PNG)
 
