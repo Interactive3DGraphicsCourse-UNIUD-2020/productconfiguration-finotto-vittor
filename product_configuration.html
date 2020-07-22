@@ -154,25 +154,28 @@
 				blue: 1.0,
 				intensity: 1.5,
 			}
-			light1 = new THREE.SpotLight({color:new THREE.Color(1,1,1,1),intensity:2});
-			light2 = new THREE.SpotLight({color:new THREE.Color(1,1,1,1),intensity:10,position:new THREE.Vector3(-5,2,0)});
-			light3  = new THREE.SpotLight({color:new THREE.Color(1,1,1,1),intensity:100,position:new THREE.Vector3(1,0,0)});
-			light4  = new THREE.SpotLight({color:new THREE.Color(1,1,1,1),intensity:50,position:new THREE.Vector3(0,-2,0)});
-			light1.position.set(10,1000,0);
+			light1 = new THREE.SpotLight({color:new THREE.Color(1,0,0,1),intensity:100});
+			light2 = new THREE.SpotLight({color:new THREE.Color(0,1,0,1),intensity:100});
+			light3  = new THREE.SpotLight({color:new THREE.Color(0,0,1,1),intensity:100});
+			light4  = new THREE.SpotLight({color:new THREE.Color(1,1,1,1),intensity:500});
+			light1.position.set(100,100,0);
+			light2.position.set(-100,100,0);
+			light3.position.set(0,100,100);
+			light4.position.set(0,100,-100);
 			let spotL1 = new THREE.SpotLightHelper(light1);
 			let spotL2 = new THREE.SpotLightHelper(light2);
 			let spotL3 = new THREE.SpotLightHelper(light3);
 			let spotL4 = new THREE.SpotLightHelper(light4);
+			scene.add(light1);
+			scene.add(light2);
+			scene.add(light3);
+			scene.add(light4);
 			
 			scene.add(spotL1);
 			scene.add(spotL2);
 			scene.add(spotL3);
 			scene.add(spotL4);
 
-			scene.add(light1);
-			scene.add(light2);
-			scene.add(light3);
-			scene.add(light4);
 			var base_uniforms = {
 				light: {
 					value: [

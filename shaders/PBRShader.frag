@@ -66,7 +66,7 @@ vec3 microfacet(Light light){
                 (4.0 * ndotl * ndotv);
     vec3 minDiffuse = vec3(0.0); // metallic
     vec3 diffuse = mix(color.xyz,minDiffuse.xyz,metalness); // lerp between metal and non metal
-    vec3 result = (diffuse+ PI * spec * (light.color * light.intensity) *ndotl);
+    vec3 result = (PI * spec * (light.color * light.intensity) *ndotl);
     return result;
 }
 vec3 perturbNormal(vec3 eye,vec3 norm){
@@ -99,7 +99,8 @@ void main(){
     for(int i =0;i<MAX_LIGHTS;i++){
         result=result+microfacet(light[i]);
     } 
-    gl_FragColor=mix((vec4(envColor,1.0)),vec4(result,1.0),roughness);
-    //(vec4(result,1.0)*roughness+(vec4(envColor,1.0)*0.5)*(1.0-roughness));
+    gl_FragColor = vec4(result,1.0)*roughness+ vec4(envColor,1.0)*(1.0-roughness);
+    //(vec4(result,1.0)*roughness*(1.0-dot(worldNorm,worldPos)) +(vec4(envColor,1.0)*0.5)*(1.0-roughness)*(dot(worldNorm,worldPos)));//mix((vec4(envColor,1.0)),vec4(result,1.0),roughness);
+   
 
 }

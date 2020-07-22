@@ -25,7 +25,7 @@ vec4 simpleLight(Light light){
     vLightPos = vec3(vModelViewMatrix * vec4(light.position,1.0));
     vCamPos = (vModelViewMatrix * vec4(vPosition,1.0)).xyz;
     vec3 s = normalize(vLightPos-vCamPos);
-    return((vec4(light.color,1.0) * light.intensity) * texColor * max(dot(s,vNormal),0.0))/(4.0*PI* pow(length(vLightPos-vCamPos),2.0)); 
+    return((vec4(light.color,1.0) * light.intensity+0.2) * texColor * max(dot(s,vNormal),0.0))/(4.0*PI* pow(length(vLightPos-vCamPos),2.0)); 
     // vec4(light.color,1.0)*texColor * dot(s,vNormal);//
 }
 
