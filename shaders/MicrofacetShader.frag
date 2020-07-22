@@ -9,7 +9,7 @@ struct Light{
 uniform Light light[MAX_LIGHTS];
 uniform float metalness;
 uniform float roughness;
-uniform vec4 color;
+varying vec4 vColor;
 
 uniform sampler2D map;
 
@@ -61,13 +61,13 @@ vec3 microfacet(Light light){
                 ggx(ndoth) /
                 (4.0 * ndotl * ndotv);
     vec3 minDiffuse = vec3(0.0); // metallic
-    vec3 diffuse = mix(color.xyz,minDiffuse.xyz,metalness); // lerp between metal and non metal
+    vec3 diffuse = mix(vColor.xyz,minDiffuse.xyz,metalness); // lerp between metal and non metal
     vec3 result = (PI * spec * (light.color * (light.intensity+0.2)) *ndotl);
     return result;
 }
 
 void main(){
-    tColor = normalize(texture2D(map,vUV)+color);
+    tColor = normalize(texture2D(map,vUV)+vColor);
     vec3 result= vec3(0.0);
     for(int i =0;i<MAX_LIGHTS;i++){
         result=result+microfacet(light[i]);
