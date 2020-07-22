@@ -80,7 +80,7 @@
 		<script>
 			var light1,light2,light3,light4;
 			var shaders_materials = {};
-			var shaders_names = ["Basic", "Glass", "Microfacet", "PBR", "Phong"];
+			var shaders_names = ["Basic", "Glass", "Microfacet", "PBR", "Toon"];
 			var oldObject;
 			var scene = new THREE.Scene();
 			var camera = new THREE.PerspectiveCamera( 75, 0.75*window.innerWidth / window.innerHeight, 0.1, 10000 );
@@ -163,7 +163,7 @@
 			let spotL2 = new THREE.SpotLightHelper(light2);
 			let spotL3 = new THREE.SpotLightHelper(light3);
 			let spotL4 = new THREE.SpotLightHelper(light4);
-			
+
 			scene.add(spotL1);
 			scene.add(spotL2);
 			scene.add(spotL3);
@@ -482,7 +482,7 @@
 							var initialValue = this.initialValue;
 							oldObject.traverse((o)=>{
 									if(o.isMesh){
-										if(o.material.name==initialValue){
+										if(o.material.initialValue==initialValue){
 											if(shaders_materials[newVal]){
 												if(o.material.color){
 													var c = new THREE.Vector4(o.material.color.r, o.material.color.g, o.material.color.b, 1.0);
@@ -492,7 +492,9 @@
 												if(o.material.map){
 													var map = o.material.map;
 												}
-												o.material=shaders_materials[newVal];
+												var newMaterial = generate_material(shaders_materials[newVal]);
+												o.material=newMaterial;
+												o.material.initialValue=initialValue;
 												o.material.uniforms.color.value=c;
 												if(map){
 													o.material.uniforms.map.value=map;
@@ -501,11 +503,12 @@
 												o.material=all_materials[oldObject.name][newVal];
 											}
 
-											this.initialValue = o.material.name;
+											//this.initialValue = o.material.name;
 											//console.log(o.material);
 										}
 									}
 								});
+
 							if(newVal=="Glass"){
 								//var c = this.__gui.__controllers.length-1;
 								for(var c = this.__gui.__controllers.length-1; c>=0; c--){
@@ -558,7 +561,7 @@
 						var initialValue = this.object.type;
 						oldObject.traverse((o)=>{
 								if(o.isMesh){
-									if(o.material.name==initialValue){
+									if(o.material.initialValue==initialValue){
 										if(o.material.uniforms){
 											o.material.uniforms.roughness.value=newVal;
 										} else if (o.material.roughness>=0) {
@@ -573,7 +576,7 @@
 						var initialValue = this.object.type;
 						oldObject.traverse((o)=>{
 								if(o.isMesh){
-									if(o.material.name==initialValue){
+									if(o.material.initialValue==initialValue){
 										if(o.material.uniforms){
 											o.material.uniforms.metalness.value=newVal;
 										} else if (o.material.metalness>=0) {
@@ -635,6 +638,7 @@
 						if(o.isMesh){
 							//o.material.uniforms=base_uniforms;
 							o.material.name="material";
+							o.material.initialValue="material";
 							all_materials[name] = {material: o.material};
 						}
 					})
@@ -671,6 +675,9 @@
 				mtlLoader.load( mtl_url, function( materials ) {
 					materials.preload();
 					all_materials[name]=materials.materials;
+					for(var m of Object.entries(all_materials[name])){
+						m[1].initialValue=m[1].name;
+					}
 					var objLoader = new THREE.OBJLoader();
 					objLoader.setMaterials( materials );
 					objLoader.load( url, function ( object ) {
@@ -759,6 +766,17 @@
 					var f_url = "shaders/"+name+"Shader.frag";
 					shadersLoader(v_url, f_url, name);
 				}
+			}
+
+			function generate_material(mat){
+				console.log(mat);
+				var newMaterial = new THREE.ShaderMaterial();
+				newMaterial.name=mat.name;
+				newMaterial.uniforms=mat.uniforms;
+				newMaterial.vertexShader=mat.vertexShader;
+				newMaterial.fragmentShader=mat.fragmentShader;
+				console.log(newMaterial);
+				return newMaterial;
 			}
 
       init();
