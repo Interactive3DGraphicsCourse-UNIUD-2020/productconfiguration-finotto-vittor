@@ -17,11 +17,12 @@ Completato import asincrono (più efficiente) e corretto dei modelli gltf e obj 
 ## Finotto
 Aggiunta illuminazione di base alla scena, creazione degli shader dei materiali custom e utilizzo della environment map nel calcolo finale.
 Shader utilizzati e relative equazioni:
--
--
--
+- BasicShader è un lambertian Shader.
+- ToonShader, è un lambertian Shader con valori discreti di luce.
+- GlassShader, è uno shader che utilizza l'enviorment map per simulare una superficie trasparente e      riflettente, siccome la mesh è unica nella scena non è necessario creare dinamicamente l'enviorment map
+- MicrofacetShader, è uno shader che utilizza l'approsimazione "schlick" per la componente fresnel del materiale, l'funzione "GGX" per la funzione di distribuzione delle normali e la funzione "smith" per il fattore geometrico.
+- PBRShader è un microfacetShader, con l'aggiunta di riflessioni da cubemap.
 
-Postprocessing:
 
 ## Vittor
 Aggiunta visualizza dell'e-commerce base con descrizione, modifica font e colori, riduzione del canvas e aggiunti loghi.
