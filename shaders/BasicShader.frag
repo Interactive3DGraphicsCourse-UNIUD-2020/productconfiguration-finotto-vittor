@@ -7,7 +7,6 @@ struct Light{
 };
 
 uniform Light light[MAX_LIGHTS];
-uniform vec4 color;
 uniform float ambient;
 uniform sampler2D map;
 
@@ -15,13 +14,15 @@ varying vec3 vNormal;
 varying mat4 vModelViewMatrix;
 varying vec3 vPosition;
 varying vec2 vUV;
+varying vec4 vColor;
+
 vec3 vCamPos;
 vec3 vLightPos;
 
 const float PI = 3.14159;
 
 vec4 simpleLight(Light light){
-    vec4 texColor = texture2D(map,vUV);
+    vec4 texColor = (texture2D(map,vUV)+vColor);
     vLightPos = vec3(viewMatrix * vec4(light.position,1.0));
     vCamPos = (viewMatrix * vec4(vPosition,1.0)).xyz;
     vec3 s = normalize(vLightPos-vCamPos);

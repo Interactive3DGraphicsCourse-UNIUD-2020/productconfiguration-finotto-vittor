@@ -1,5 +1,6 @@
 // Fragment
 #define MAX_LIGHTS 4
+#define LEVELS 3.0
 struct Light{
     vec3 position;
     vec3 color;
@@ -7,10 +8,10 @@ struct Light{
 };
 
 uniform Light light[MAX_LIGHTS];
-uniform vec4 color;
 uniform float ambient;
 uniform sampler2D map;
 
+varying vec4 vColor;
 varying vec3 vNormal;
 varying mat4 vModelViewMatrix;
 varying vec3 vPosition;
@@ -21,18 +22,19 @@ vec3 vLightPos;
 const float PI = 3.14159;
 
 vec4 simpleLight(Light light){
-    vec4 texColor = texture2D(map,vUV);
+    vec4 texColor = normalize(texture2D(map,vUV)+vColor);
     vLightPos = vec3(viewMatrix * vec4(light.position,1.0));
     vCamPos = (viewMatrix * vec4(vPosition,1.0)).xyz;
     vec3 s = normalize(vLightPos-vCamPos);
-    return((vec4(light.color,1.0) * light.intensity) * texColor * max(dot(s,vNormal),0.0))/(4.0*PI* pow(length(vLightPos-vCamPos),2.0)); 
-    // vec4(light.color,1.0)*texColor * dot(s,vNormal);//
+    float lightIntensity = floor(max(dot(s,vNormal),0.0)*LEVELS)/LEVELS;
+    return (vec4(light.color,1.0) * lightIntensity) * texColor; //(1.0*PI* pow(length(vLightPos-vCamPos),1.0/2.2));
+    //return vec4(light.color,1.0)*texColor * dot(s,vNormal);//
 }
 
 void main(){
     vec4 result= vec4(0,0,0,0);
     for(int i =0;i<MAX_LIGHTS;i++){
-        result=result + normalize(simpleLight(light[i]));
-    } 
+        result=result + simpleLight(light[i]);
+    }
     gl_FragColor =result;
 }
