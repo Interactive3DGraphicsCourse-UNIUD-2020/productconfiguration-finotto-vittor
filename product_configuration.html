@@ -159,19 +159,10 @@
 			light2.position.set(-100,100,0);
 			light3.position.set(0,100,100);
 			light4.position.set(0,100,-100);
-			let spotL1 = new THREE.SpotLightHelper(light1);
-			let spotL2 = new THREE.SpotLightHelper(light2);
-			let spotL3 = new THREE.SpotLightHelper(light3);
-			let spotL4 = new THREE.SpotLightHelper(light4);
 			scene.add(light1);
 			scene.add(light2);
 			scene.add(light3);
 			scene.add(light4);
-
-			scene.add(spotL1);
-			scene.add(spotL2);
-			scene.add(spotL3);
-			scene.add(spotL4);
 
 			var base_uniforms = {
 				light: {
@@ -203,6 +194,8 @@
 
 
 			var p_material={
+				"roughness": 0.54,
+				"metalness": 0.54,
 				"roughnessP": 0.54,
 				"metalnessP": 0.54,
 				"roughnessM": 0.54,
@@ -559,6 +552,11 @@
 					var m = materials.addFolder("Material "+material);
 					m.add(p_material, "type", all_s).onChange(
 						function(newVal) {
+							if(this.__gui.__controllers.length>1){
+								console.log(this.__gui.__controllers)
+								this.__gui.remove(this.__gui.__controllers[2]);
+								this.__gui.remove(this.__gui.__controllers[1]);
+							}
 							var initialValue = this.initialValue;
 							oldObject.traverse((o)=>{
 									if(o.isMesh){
@@ -566,84 +564,58 @@
 											if(shaders_materials[newVal]){
 												if(o.material.map){
 													var map = o.material.map;
+												} else if(o.material.uniforms.map){
+													var map = o.material.uniforms.map.value;
 												}
 												var newMaterial = generate_material(shaders_materials[newVal]);
 												newMaterial.initialValue=initialValue;
 												//newMaterial.uniforms.color.value=c;
-												console.log(newMaterial);
+
 												o.material=newMaterial;
+
 												if(map){
+
 													o.material.uniforms.map.value=map;
 												}
 											} else {
 												o.material=all_materials[oldObject.name][newVal];
+												m.add(p_material,'roughness').min(0).max(1).onChange( function(newVal) {
+													var initialValue = this.object.type;
+													oldObject.traverse((o)=>{
+															if(o.isMesh){
+																if(o.material.name==initialValue){
+																	o.material.roughness = newVal;
+																}
+															}
+														});
+													render()
+												});
+												m.add(p_material,'metalness').min(0).max(1).onChange( function(newVal) {
+													var initialValue = this.object.type;
+													oldObject.traverse((o)=>{
+															if(o.isMesh){
+																if(o.material.name==initialValue){
+																	o.material.metalness = newVal;
+																}
+															}
+														});
+											render()
+										});
 											}
 
-											//this.initialValue = o.material.name;
-											//console.log(o.material);
 										}
 									}
 								});
-							/*if(newVal=="Glass"){
-								//var c = this.__gui.__controllers.length-1;
-								for(var c = this.__gui.__controllers.length-1; c>=0; c--){
-									if(this.__gui.__controllers[c].property!="type"){
-										this.__gui.__controllers[c].remove();
-									}
-								}
-
-
-									this.__gui.add(p_material,'reflection').min(0).max(1).onChange( function(newVal) {
-									var initialValue = this.object.type;
-									oldObject.traverse((o)=>{
-											if(o.isMesh){
-												if(o.material.name==initialValue){
-													if(o.material.uniforms){
-														o.material.uniforms.reflection.value=newVal;
-													} else if (o.material.reflection>=0) {
-														o.material.reflection = newVal;
-													}
-												}
-											}
-										});
-									render()
-								});
-
-									this.__gui.add(p_material,'eta').min(0).max(1).onChange( function(newVal) {
-									var type = this.object.type;
-									oldObject.traverse((o)=>{
-											if(o.isMesh){
-
-												if(o.material.name==initialValue){
-													if(o.material.uniforms){
-														o.material.uniforms.eta.value=newVal;
-														console.log(o.material.uniforms);
-													} else if (o.material.eta>=0) {
-														o.material.eta = newVal;
-													}
-												}
-											}
-										});
-									render()
-								});
-							} else{
-								console.log(initialValue);
-							} */
 
 							render()
 						});
-						/*if(oldObject.type=="Scene"){
-							console.log(this);
+						if(oldObject.type=="Scene"){
 							m.add(p_material,'roughness').min(0).max(1).onChange( function(newVal) {
 								var initialValue = this.object.type;
 								oldObject.traverse((o)=>{
 										if(o.isMesh){
 											if(o.material.name==initialValue){
-												if(o.material.uniforms){
-													o.material.uniforms.roughness.value=newVal;
-												} else if (o.material.roughness>=0) {
-													o.material.roughness = newVal;
-												}
+												o.material.roughness = newVal;
 											}
 										}
 									});
@@ -654,17 +626,13 @@
 								oldObject.traverse((o)=>{
 										if(o.isMesh){
 											if(o.material.name==initialValue){
-												if(o.material.uniforms){
-													o.material.uniforms.metalness.value=newVal;
-												} else if (o.material.metalness>=0) {
-													o.material.metalness = newVal;
-												}
+												o.material.metalness = newVal;
 											}
 										}
 									});
 						render()
 					});
-				}*/
+				}
 			}
 }
 
@@ -870,7 +838,7 @@
 			function generate_material(material, color){
 
 				var newMat = new THREE.ShaderMaterial();
-				newMat.name=material.name+newMat.uuid;
+				newMat.name=material.name+" "+newMat.uuid;
 				var uni = material.uniforms;
 				newMat.uniforms=uni;
 				newMat.fragmentShader=''+material.fragmentShader;
