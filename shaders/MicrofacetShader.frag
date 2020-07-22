@@ -7,12 +7,13 @@ struct Light{
 };
 
 uniform Light light[MAX_LIGHTS];
-uniform float metalness;
-uniform float roughness;
-varying vec4 vColor;
+uniform float metalnessM;
+uniform float roughnessM;
+uniform bool useMap;
 
 uniform sampler2D map;
 
+varying vec4 vColor;
 varying vec3 vNormal;
 varying mat4 vModelViewMatrix;
 varying vec3 vPosition;
@@ -67,7 +68,11 @@ vec3 microfacet(Light light){
 }
 
 void main(){
-    tColor = normalize(texture2D(map,vUV)+vColor);
+    if(useMap == true){
+        tColor = texture2D(map,vUV);
+    }else{
+        tColor = vColor;
+    }
     vec3 result= vec3(0.0);
     for(int i =0;i<MAX_LIGHTS;i++){
         result=result+microfacet(light[i]);

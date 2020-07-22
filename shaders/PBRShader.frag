@@ -8,9 +8,9 @@ struct Light{
 };
 
 uniform Light light[MAX_LIGHTS];
-uniform float metalness;
-uniform float roughness;
-uniform vec4 color;
+uniform float metalnessP;
+uniform float roughnessP;
+uniform bool useMap;
 
 uniform sampler2D map;
 uniform samplerCube envMap;
@@ -20,6 +20,7 @@ varying vec3 vNormal;
 varying mat4 vModelViewMatrix;
 varying vec3 vPosition;
 varying vec2 vUV;
+varying vec4 vColor;
 
 vec3 vCamPos;
 vec3 vLightPos;
@@ -65,7 +66,7 @@ vec3 microfacet(Light light){
                 ggx(ndoth) /
                 (4.0 * ndotl * ndotv);
     vec3 minDiffuse = vec3(0.0); // metallic
-    vec3 diffuse = mix(color.xyz,minDiffuse.xyz,metalness); // lerp between metal and non metal
+    vec3 diffuse = mix(tColor.xyz,minDiffuse.xyz,metalness); // lerp between metal and non metal
     vec3 result = (PI * spec * (light.color * light.intensity) *ndotl);
     return result;
 }
@@ -85,7 +86,11 @@ vec3 perturbNormal(vec3 eye,vec3 norm){
     return normalize(tsn * mapN);
 } 
 void main(){
-    tColor = texture2D(map,vUV);
+    if(useMap == true){
+        tColor = texture2D(map,vUV);
+    }else{
+        tColor = vColor;
+    }
     //perturbNormal((vModelViewMatrix * vec4(cameraPosition,1.0)).xyz,(vModelViewMatrix* vec4(vNormal,1.0)).xyz);
     tNormal =vNormal;// texture2D(normalMap,vUV).xyz;
 

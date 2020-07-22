@@ -23,7 +23,7 @@ const float PI = 3.14159;
 
 vec4 simpleLight(Light light){
     vec4 texColor;
-    if(useMap){
+    if(useMap == true){
         texColor = texture2D(map,vUV);
     }else{
         texColor = vColor;
